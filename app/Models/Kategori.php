@@ -15,6 +15,10 @@ class Kategori extends Model
     // Matikan timestamps karena tabel kita tidak punya created_at & updated_at
     public $timestamps = false;
 
-    // Kolom apa saja yang boleh diisi
-    protected $fillable = ['NAMA_KATEGORI', 'ICON'];
+    
+   protected $fillable = [
+    'NAMA_KATEGORI', 
+    'PREFIX_KODE', // <-- Tambahkan ini agar tidak diblokir Laravel
+    'ICON'
+];
 }

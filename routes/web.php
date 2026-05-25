@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\KeranjangController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // INI YANG DIGANTI YA BOSS
@@ -24,8 +25,11 @@ Route::get('/katalog/{id}', [FrontController::class, 'show'])->name('katalog.sho
 // Rute Aksi Tambah ke Keranjang
 Route::post('/keranjang/add/{id}', [KeranjangController::class, 'add'])->name('keranjang.add');
 
-// Rute Checkout
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+// Rute Checkout (Pastikan rute ini dibungkus middleware Auth ya, supaya yang bisa checkout cuma yang sudah login)
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Profil Bawaan
@@ -57,9 +61,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     // AREA KHUSUS ADMIN (Dilindungi Middleware)
     // ==========================================
-    Route::middleware('role:admin')->group(function () {
+   // Ganti 'role:admin' menjadi 'role:Admin'
+Route::middleware('role:Admin')->group(function () {
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
+        
+        // Rute Kelola Akun
+        Route::get('/kelola-akun', [UserController::class, 'index'])->name('user.index');
+        Route::post('/kelola-akun/tambah', [UserController::class, 'store'])->name('user.store');
     });
 });
 

@@ -60,14 +60,15 @@
                         <td>
                             <a href="{{ route('produk.edit', $item->ID_PRODUK) }}" class="btn btn-warning btn-sm">Edit</a>
 
-@if(auth()->user()->role == 'admin')
-    <form action="{{ route('produk.destroy', $item->ID_PRODUK) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-    </form>
-@endif
-                            </form>
+                            @if(auth()->user()->role == 'Admin')
+                                <form action="{{ route('produk.destroy', $item->ID_PRODUK) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan!')">
+                                        Hapus
+                                    </button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
