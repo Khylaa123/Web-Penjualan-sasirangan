@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
 use App\Models\RiwayatStok;
+use App\Models\Voucher;
 use Illuminate\Support\Facades\Auth;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -21,29 +22,66 @@ class CheckoutController extends Controller
         return view('checkout.index');
     }
 
-    // 2. Memproses data saat tombol "Buat Pesanan" diklik
+    // 2. Fungsi Cek Voucher
+    public function cekVoucher(Request $request)
+    {
+        $request->validate(['kode_voucher' => 'required']);
+
+        $voucher = Voucher::where('KODE_VOUCHER', $request->kode_voucher)
+                          ->where('STATUS_AKTIF', 'Aktif')
+                          ->first();
+
+        if ($voucher) {
+            // Simpan data diskon ke session sementara
+            session()->put('voucher', [
+                'kode' => $voucher->KODE_VOUCHER,
+                'potongan' => $voucher->POTONGAN_HARGA
+            ]);
+            return redirect()->back()->with('success', 'Voucher berhasil digunakan! Anda mendapat potongan Rp ' . number_format($voucher->POTONGAN_HARGA, 0, ',', '.'));
+        }
+
+        return redirect()->back()->with('error', 'Kode voucher tidak valid atau sudah tidak aktif.');
+    }
+
+    // 3. Fungsi Hapus Voucher
+    public function hapusVoucher()
+    {
+        session()->forget('voucher');
+        return redirect()->back()->with('success', 'Voucher berhasil dibatalkan.');
+    }
+
+    // 4. Fungsi Proses Checkout (Modifikasi - dengan support diskon)
     public function proses(Request $request)
     {
         $cart = session()->get('cart');
-        if(!$cart) {
-            return redirect()->route('katalog.index');
-        }
+        if(!$cart) return redirect()->route('katalog.index');
 
-        $totalAkhir = 0;
+        $subtotal = 0;
         foreach($cart as $item) {
-            $totalAkhir += $item['harga'] * $item['jumlah'];
+            $subtotal += $item['harga'] * $item['jumlah'];
         }
 
-        // 1. Simpan ke tabel pesanan
+        // Cek apakah ada diskon dari session
+        $potongan = 0;
+        if (session()->has('voucher')) {
+            $potongan = session('voucher')['potongan'];
+        }
+
+        // Kalkulasi Total Akhir
+        $totalAkhir = $subtotal - $potongan;
+        if ($totalAkhir < 0) { $totalAkhir = 0; } // Mencegah total menjadi minus
+
+        // Simpan ke tabel pesanan (Sekarang ada data POTONGAN_DISKON)
         $pesanan = Pesanan::create([
             'ID_USER'           => Auth::id(),
             'TANGGAL_PESANAN'   => now(),
-            'SUBTOTAL_PRODUK'   => $totalAkhir,
+            'SUBTOTAL_PRODUK'   => $subtotal,
+            'POTONGAN_DISKON'   => $potongan, // <-- Masuk ke database
             'TOTAL_AKHIR'       => $totalAkhir,
             'STATUS_PESANAN'    => 'Pending'
         ]);
 
-        // 2. Simpan detail pesanan & potong stok
+        // Simpan detail pesanan & potong stok
         foreach($cart as $id_produk => $item) {
             DetailPesanan::create([
                 'ID_PESANAN'   => $pesanan->ID_PESANAN,
@@ -63,17 +101,16 @@ class CheckoutController extends Controller
             ]);
         }
 
-        // 3. KONFIGURASI MIDTRANS
+        // Konfigurasi Midtrans
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // 4. BUAT PARAMETER TRANSAKSI UNTUK MIDTRANS
         $params = array(
             'transaction_details' => array(
-                'order_id' => $pesanan->ID_PESANAN . '-' . time(), // Order ID harus unik
-                'gross_amount' => $totalAkhir,
+                'order_id' => $pesanan->ID_PESANAN . '-' . time(),
+                'gross_amount' => $totalAkhir, // Uang yang ditagih sudah dikurangi diskon!
             ),
             'customer_details' => array(
                 'first_name' => Auth::user()->name,
@@ -81,13 +118,12 @@ class CheckoutController extends Controller
             ),
         );
 
-        // Dapatkan Snap Token dari Midtrans
         $snapToken = Snap::getSnapToken($params);
 
-        // Kosongkan keranjang
+        // KOSONGKAN KERANJANG & VOUCHER SETELAH CHECKOUT SUKSES
         session()->forget('cart');
+        session()->forget('voucher');
 
-        // Lempar Token ini ke halaman detail pesanan
         return redirect()->route('pesanan.show', $pesanan->ID_PESANAN)
                          ->with('snapToken', $snapToken)
                          ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');

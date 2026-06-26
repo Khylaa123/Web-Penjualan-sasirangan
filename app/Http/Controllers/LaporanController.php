@@ -21,8 +21,11 @@ class LaporanController extends Controller
             $query->whereBetween('TANGGAL_PESAN', [$tgl_mulai . ' 00:00:00', $tgl_sampai . ' 23:59:59']);
         }
 
+        // Biarkan database MySQL yang menghitung totalnya (Jauh lebih cepat dan hemat RAM)
+        $total_pendapatan = $query->sum('TOTAL_AKHIR'); 
+
+        // Setelah total didapat, baru tarik datanya untuk ditampilkan ke tabel
         $pesanan = $query->orderBy('TANGGAL_PESAN', 'desc')->get();
-        $total_pendapatan = $pesanan->sum('TOTAL_AKHIR');
 
         return view('laporan.index', compact('pesanan', 'tgl_mulai', 'tgl_sampai', 'total_pendapatan'));
     }
@@ -39,8 +42,11 @@ class LaporanController extends Controller
             $query->whereBetween('TANGGAL_PESAN', [$tgl_mulai . ' 00:00:00', $tgl_sampai . ' 23:59:59']);
         }
 
+        // Biarkan database MySQL yang menghitung totalnya (Jauh lebih cepat dan hemat RAM)
+        $total_pendapatan = $query->sum('TOTAL_AKHIR'); 
+
+        // Setelah total didapat, baru tarik datanya untuk ditampilkan ke tabel
         $pesanan = $query->orderBy('TANGGAL_PESAN', 'asc')->get();
-        $total_pendapatan = $pesanan->sum('TOTAL_AKHIR');
 
         return view('laporan.cetak', compact('pesanan', 'tgl_mulai', 'tgl_sampai', 'total_pendapatan'));
     }

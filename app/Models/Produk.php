@@ -19,6 +19,7 @@ class Produk extends Model
         'DESKRIPSI', 
         'BERAT_GRAM', 
         'HARGA',       
+        'DISKON_PERSEN',
         'STOK',        
         'GAMBAR_UTAMA', 
         'STATUS_AKTIF'
@@ -40,5 +41,27 @@ class Produk extends Model
     public function detail()
     {
         return $this->hasMany(DetailProduk::class, 'ID_PRODUK', 'ID_PRODUK');
+    }
+
+    // SIHIR ACCESSOR: Menghitung harga otomatis jika ada diskon
+    public function getHargaAkhirAttribute()
+    {
+        if ($this->DISKON_PERSEN > 0) {
+            $potongan = $this->HARGA * ($this->DISKON_PERSEN / 100);
+            return $this->HARGA - $potongan;
+        }
+        return $this->HARGA;
+    }
+
+    // Relasi ke Ulasan Produk
+    public function ulasan()
+    {
+        return $this->hasMany(UlasanProduk::class, 'ID_PRODUK', 'ID_PRODUK');
+    }
+
+    // Accessor tambahan untuk mendapatkan Rata-Rata Rating (Opsional tapi keren)
+    public function getRataRataRatingAttribute()
+    {
+        return $this->ulasan()->avg('RATING') ?? 0;
     }
 }

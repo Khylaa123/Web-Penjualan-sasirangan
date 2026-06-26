@@ -41,11 +41,11 @@ class KeranjangController extends Controller
             // Jika belum ada, buat item baru di keranjang
             $cart[$id] = [
                 "nama_produk" => $produk->NAMA_PRODUK,
-                "jumlah" => 1,
-                "harga" => $produk->HARGA,
-                // Sesuaikan field gambar di bawah ini dengan nama di database kamu
-                "gambar" => $produk->FOTO_PRODUK, 
-                "berat" => $produk->BERAT_GRAM // Disimpan untuk hitung ongkir nanti
+                "jumlah"      => 1,
+                // UBAH BAGIAN INI: Gunakan harga_akhir dari Accessor tadi
+                "harga"       => $produk->harga_akhir, 
+                "gambar"      => $produk->GAMBAR_UTAMA, 
+                "berat"       => $produk->BERAT_GRAM
             ];
         }
 

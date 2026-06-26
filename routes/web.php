@@ -11,10 +11,17 @@ use App\Http\Controllers\FrontController;
 use App\Http\Controllers\KeranjangController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CallbackController;
+use App\Http\Controllers\UlasanController;
 use Illuminate\Support\Facades\Route;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 // INI YANG DIGANTI YA BOSS
 Route::get('/', [FrontController::class, 'index'])->name('home');
+
+// Route untuk Webhook Midtrans (TANPA /api)
+Route::post('/midtrans-callback', [CallbackController::class, 'midtransCallback']);
 
 // Rute Halaman Katalog
 Route::get('/katalog', [FrontController::class, 'katalog'])->name('katalog.index');
@@ -29,6 +36,8 @@ Route::post('/keranjang/add/{id}', [KeranjangController::class, 'add'])->name('k
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
+    Route::post('/checkout/voucher', [CheckoutController::class, 'cekVoucher'])->name('checkout.voucher');
+    Route::get('/checkout/voucher/hapus', [CheckoutController::class, 'hapusVoucher'])->name('checkout.voucher.hapus');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -48,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Pesanan
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
+    Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
     Route::post('/pesanan/{id}/update', [PesananController::class, 'updateStatus'])->name('pesanan.update');
 
     // Rute Keranjang Belanja
@@ -57,6 +67,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
+
+    // Rute Ulasan Produk
+    Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
 
     // ==========================================
     // AREA KHUSUS ADMIN (Dilindungi Middleware)
@@ -70,6 +83,26 @@ Route::middleware('role:Admin')->group(function () {
         Route::get('/kelola-akun', [UserController::class, 'index'])->name('user.index');
         Route::post('/kelola-akun/tambah', [UserController::class, 'store'])->name('user.store');
     });
+});
+
+Route::get('/test-snap', function () {
+    Config::$serverKey = config('midtrans.server_key');
+    Config::$isProduction = config('midtrans.is_production');
+    Config::$isSanitized = config('midtrans.is_sanitized');
+    Config::$is3ds = config('midtrans.is_3ds');
+
+    $params = [
+        'transaction_details' => [
+            'order_id' => 'ORD-999-' . time(), 
+            'gross_amount' => 170000, 
+        ],
+        'customer_details' => [
+            'first_name' => 'KHAYLA ANNISA PUTRI',
+            'email' => 'khayla@gmail.com',
+        ],
+    ];
+
+    return response()->json(['snap_token' => Snap::getSnapToken($params)]);
 });
 
 require __DIR__.'/auth.php';
