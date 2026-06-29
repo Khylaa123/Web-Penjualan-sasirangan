@@ -1456,3 +1456,42 @@
 .profile-stat-card:hover{
     transform: translateY(-5px);
 }
+/* Efek Card Referensi */
+.katalog-card {
+    border-radius: 10px;
+    transition: 0.5s;
+    border: 1px solid #f2f2f2 !important;
+}
+
+.katalog-card:hover {
+    box-shadow: 0 0 55px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Efek Gambar Membesar saat Hover */
+.katalog-card .overflow-hidden img {
+    transition: 0.5s;
+}
+
+.katalog-card:hover .overflow-hidden img {
+    transform: scale(1.15);
+}
+
+/* Posisi Badge Kategori */
+.badge-katalog {
+    top: 15px !important;
+    left: 15px !important;
+    z-index: 2;
+    font-size: 14px;
+}
+
+/* Styling Button Keranjang mirip template */
+.btn-outline-warning {
+    color: #ffb524;
+    border-color: #ffb524;
+    transition: 0.3s;
+}
+
+.btn-outline-warning:hover {
+    background: #ffb524;
+    color: #fff;
+}
