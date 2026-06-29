@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CekRole::class,
         ]);
+        
+        // TAMBAHKAN BLOK INI: Pengecualian untuk Midtrans
+        $middleware->validateCsrfTokens(except: [
+            'midtrans-callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

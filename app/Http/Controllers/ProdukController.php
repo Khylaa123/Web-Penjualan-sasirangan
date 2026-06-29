@@ -27,20 +27,42 @@ class ProdukController extends Controller
     // 3. Fungsi untuk MENYIMPAN produk baru ke database
     public function store(Request $request)
     {
-        // 1. Validasi Input (Sekarang ada HARGA dan STOK)
+        // 1. Validasi Input (Tetap sama seperti yang kamu buat)
         $request->validate([
             'ID_KATEGORI'  => 'required',
             'NAMA_PRODUK'  => 'required|string|max:100',
             'DESKRIPSI'    => 'nullable|string',
             'BERAT_GRAM'   => 'required|integer|min:0',
-            'HARGA'        => 'required|numeric|min:0', // Tambahan baru
-            'STOK'         => 'required|integer|min:0', // Tambahan baru
+            'HARGA'        => 'required|numeric|min:0', 
+            'STOK'         => 'required|integer|min:0', 
             'STATUS_AKTIF' => 'required',
             'GAMBAR_UTAMA' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // 2. Generate KODE PRODUK Otomatis (Format: BRG-WaktuRandom)
-        $kode_produk = 'BRG-' . strtoupper(substr(uniqid(), -5));
+        // 2. GENERATE KODE PRODUK OTOMATIS (SKU)
+        // Ambil data kategori yang dipilih untuk mendapatkan Prefix-nya
+        $kategori = Kategori::findOrFail($request->ID_KATEGORI);
+        
+        // Gunakan prefix dari database, jika kosong gunakan default 'BRG'
+        $prefix = $kategori->PREFIX_KODE ? $kategori->PREFIX_KODE : 'BRG'; 
+
+        // Cari produk terakhir di kategori yang sama untuk menentukan nomor urut selanjutnya
+        $produkTerakhir = Produk::where('ID_KATEGORI', $request->ID_KATEGORI)
+                                ->orderBy('ID_PRODUK', 'desc')
+                                ->first();
+
+        if ($produkTerakhir && $produkTerakhir->KODE_PRODUK) {
+            // Jika sudah ada (contoh: KNS-002), pecah stringnya, ambil angkanya, lalu tambah 1
+            $pecahKode = explode('-', $produkTerakhir->KODE_PRODUK);
+            $nomorUrut = (int) end($pecahKode) + 1; 
+        } else {
+            // Jika ini adalah produk pertama di kategori tersebut
+            $nomorUrut = 1; 
+        }
+
+        // Format nomor urut jadi 3 digit angka (contoh hasil: KNS-001, KNS-002)
+        $kodeProdukBaru = $prefix . '-' . str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);
+
 
         // 3. Proses Upload Gambar
         $nama_foto = null;
@@ -50,20 +72,21 @@ class ProdukController extends Controller
             $file->move(public_path('uploads/produk'), $nama_foto);
         }
 
-        // 4. Simpan ke Database Lengkap dengan Kode, Harga, dan Stok
+        // 4. Simpan ke Database beserta KODE_PRODUK yang sudah digenerate
         Produk::create([
             'ID_KATEGORI'  => $request->ID_KATEGORI,
-            'KODE_PRODUK'  => $kode_produk, // Disimpan otomatis
+            'KODE_PRODUK'  => $kodeProdukBaru, // <-- Masukkan kode otomatis di sini
             'NAMA_PRODUK'  => $request->NAMA_PRODUK,
             'DESKRIPSI'    => $request->DESKRIPSI,
             'BERAT_GRAM'   => $request->BERAT_GRAM,
-            'HARGA'        => $request->HARGA, // Dari form
-            'STOK'         => $request->STOK,  // Dari form
+            'HARGA'        => $request->HARGA,
+            'STOK'         => $request->STOK,
             'STATUS_AKTIF' => $request->STATUS_AKTIF,
             'GAMBAR_UTAMA' => $nama_foto
         ]);
 
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan!');
+        // Redirect atau return response sesuai kebutuhan sistem kamu
+        return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan dengan kode: ' . $kodeProdukBaru);
     }
 
     // Fungsi untuk MENGHAPUS produk

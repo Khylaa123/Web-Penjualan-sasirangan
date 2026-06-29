@@ -7,14 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Pesanan extends Model
 {
     protected $table = 'pesanan';
-    // Karena tipe data ID_PESANAN adalah varchar (string), kita beri tahu Laravel:
     protected $primaryKey = 'ID_PESANAN';
     public $incrementing = false; 
     protected $keyType = 'string';
-    
     public $timestamps = false; 
 
-    // Sesuaikan dengan nama kolom yang Anda kirimkan
     protected $fillable = [
         'ID_USER', 
         'ID_PENGIRIMAN', 
@@ -33,5 +30,10 @@ class Pesanan extends Model
 
     public function detail() {
         return $this->hasMany(DetailPesanan::class, 'ID_PESANAN', 'ID_PESANAN');
+    }
+
+    // TAMBAHAN BARU: Relasi ke tabel metode_pengiriman
+    public function pengiriman() {
+        return $this->belongsTo(MetodePengiriman::class, 'ID_PENGIRIMAN', 'ID_PENGIRIMAN');
     }
 }
