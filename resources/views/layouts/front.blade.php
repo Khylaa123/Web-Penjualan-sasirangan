@@ -56,19 +56,30 @@
                         <a href="#" class="nav-item nav-link">Tentang Kami</a>
                     </div>
                     <div class="d-flex m-3 me-0">
-                        <a href="#" class="position-relative me-4 my-auto">
+                        <a href="{{ route('keranjang.index') }}"
+                           class="position-relative me-4 my-auto">
                             <i class="fa fa-shopping-bag fa-2x"></i>
-                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1"
+                                style="top:-5px;left:15px;height:20px;min-width:20px;">
+                               {{ session('cart') ? collect(session('cart'))->sum('jumlah') : 0 }}
+                            </span>
                         </a>
+                       @auth
+                        <a href="{{ route('pelanggan.profile') }}" class="my-auto">
+                            <i class="fas fa-user fa-2x"></i>
+                        </a>
+                        @endauth
+                        @guest
                         <a href="{{ route('login') }}" class="my-auto">
                             <i class="fas fa-user fa-2x"></i>
                         </a>
+                        @endguest 
                     </div>
                 </div>
             </nav>
         </div>
     </div>
-    <div style="min-height: 70vh; margin-top: 150px;">
+    <div style="min-height: 70vh; margin-top: 20px;">
         @yield('content')
     </div>
 
@@ -107,7 +118,28 @@
         </div>
     </div>
     <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+<script src="{{ asset('front/js/main.js') }}"></script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+
+    if(nextBtn){
+        nextBtn.addEventListener('mouseenter', function () {
+            this.click();
+        });
+    }
+
+    if(prevBtn){
+        prevBtn.addEventListener('mouseenter', function () {
+            this.click();
+        });
+    }
+
+});
+</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('front/lib/easing/easing.min.js') }}"></script>

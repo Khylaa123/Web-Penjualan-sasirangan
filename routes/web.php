@@ -26,8 +26,11 @@ Route::post('/keranjang/add/{id}', [KeranjangController::class, 'add'])->name('k
 
 // Rute Checkout
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-
+Route::get('/profil-pelanggan', function () {
+    return view('front.profile');
+    })->middleware('auth')->name('pelanggan.profile');
 Route::middleware(['auth', 'verified'])->group(function () {
+    
     // Rute Profil Bawaan
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -1,20 +1,25 @@
 @extends('layouts.front')
 
 @section('content')
-<div class="container-fluid page-header py-5">
-    <h1 class="text-center text-white display-6">Katalog Sasirangan</h1>
-    <ol class="breadcrumb justify-content-center mb-0">
-        <li class="breadcrumb-item"><a href="{{ url('/') }}">Beranda</a></li>
-        <li class="breadcrumb-item active text-white">Katalog</li>
-    </ol>
+<div class="container-fluid page-header py-5 katalog-banner">
+    <h1 class="text-center text-white display-4 fw-bold">
+        katalog Sasirangan
+</h1>
 </div>
-<div class="container-fluid fruite py-5">
+<div class="container-fluid page-header py-5" 
+     style="background: linear-gradient(rgb(252, 251, 251), rgb(134, 134, 134)), 
+     url('{{ asset('img/bg-sasirangan.jpg') }}');
+     background-size: cover;
+     background-position: center;">
     <div class="container py-5">
-        <h1 class="mb-4">Koleksi Produk Kami</h1>
+        <h1 class="mb-4">Koleksi Produk Sasirangan Mellisari</h1>
+        <p class="text-muted mb-5">
+           Temukan berbagai motif kain sasirangan khas Kalimantan Selatan
+           dengan kualitas terbaik.
+        </p>
         <div class="row g-4">
             <div class="col-lg-12">
-                <div class="row g-4">
-                    
+                <div class="row g-4">                  
                     <div class="col-xl-3">
                         <form action="{{ route('katalog.index') }}" method="GET">
                             <div class="input-group w-100 mx-auto d-flex">
@@ -23,14 +28,13 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-6"></div>
+                    <div class="col-xl-6"></div>
                     <div class="col-xl-3">
                         <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
                             <label for="sort">Urutkan:</label>
                             <form action="{{ route('katalog.index') }}" method="GET" id="form-sort">
                                 @if(request('search')) <input type="hidden" name="search" value="{{ request('search') }}"> @endif
                                 @if(request('kategori')) <input type="hidden" name="kategori" value="{{ request('kategori') }}"> @endif
-                                
                                 <select id="sort" name="sort" class="border-0 form-select-sm bg-light me-3" onchange="document.getElementById('form-sort').submit();">
                                     <option value="">Default</option>
                                     <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
@@ -41,7 +45,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="row g-4">
                     <div class="col-lg-3">
                         <div class="row g-4">
@@ -66,98 +69,122 @@
                                     </ul>
                                 </div>
                             </div>
-
                             <div class="col-lg-12">
                                 <div class="mb-3">
-                                    <h4 class="mb-2">Filter Harga</h4>
-                                    <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500000" value="0" oninput="amount.value=rangeInput.value">
-                                    <output id="amount" name="amount" min-velue="0" max-value="500000" for="rangeInput">0</output>
+                                    <h4 class="mb-3">Filter Harga</h4>
+                                    <div class="card shadow-sm border-0">
+                                    <div class="card-body text-center">
+                                        <img src="{{ asset('front/img/sasirangankuning.png') }}"
+                                             class="img-fluid rounded"
+                                             style="height:180px;
+                                                    width:100%;
+                                                    object-fit:cover;">
+                                        <h6>Sasirangan Premium</h6>
+                                        <a href="{{ route('katalog.index') }}"
+                                        class="btn btn-primary rounded-pill mt-2">
+                                            Lihat Produk
+                                        </a>
+                                    </div>
+                                </div>
+                                    <h4 class="mb-3">Produk Unggulan</h4>
                                 </div>
                             </div>
-
                             <div class="col-lg-12">
-                                <h4 class="mb-3">Produk Pilihan</h4>
-                                @foreach($featured as $feat)
-                                <div class="d-flex align-items-center justify-content-start mb-3">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="{{ asset('storage/' . $feat->FOTO_PRODUK) }}" class="img-fluid rounded" alt="{{ $feat->NAMA_PRODUK }}" style="object-fit: cover; width: 100%; height: 100%;">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">{{ $feat->NAMA_PRODUK }}</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">Rp {{ number_format($feat->HARGA, 0, ',', '.') }}</h5>
-                                        </div>
+                            <div class="border rounded shadow-sm p-3 bg-white">
+                            <h5 class="fw-bold mb-3">Produk Pilihan</h5>
+                            @foreach($featured as $feat)
+                            <div class="d-flex align-items-center mb-3">
+                            <div class="rounded me-3"
+                                 style="width:90px;height:90px;overflow:hidden;">
+                            <img src="{{ asset('storage/' . $feat->FOTO_PRODUK) }}"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;">
+                            </div>
+                            <div>
+                            <h6 class="mb-1 fw-bold text-dark">
+                                {{ Str::limit($feat->NAMA_PRODUK, 18) }}
+                            </h6>
+                                <p class="fw-bold text-warning mb-0">
+                                    Rp {{ number_format($feat->HARGA,0,',','.') }}
+                                    </p>
                                     </div>
                                 </div>
                                 @endforeach
                             </div>
-
                         </div>
                     </div>
                     <div class="col-lg-9">
-                        <div class="row g-4 justify-content-center">
-                            
-                            {{-- Notifikasi --}}
-                            @if(session('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('success') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @forelse($produk as $p)
-                            <div class="col-md-6 col-lg-6 col-xl-4">
-                                <div class="rounded position-relative fruite-item h-100 d-flex flex-column">
-                                    <div class="fruite-img">
-                                        <img src="{{ asset('storage/' . $p->FOTO_PRODUK) }}" class="img-fluid w-100 rounded-top" alt="{{ $p->NAMA_PRODUK }}" style="height: 250px; object-fit: cover;">
-                                    </div>
-                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">
-                                        {{ $p->kategori->NAMA_KATEGORI ?? 'Kain' }}
-                                    </div>
-                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom flex-grow-1 d-flex flex-column">
-                                        <h4><a href="{{ route('katalog.show', $p->ID_PRODUK) }}" class="text-dark">{{ $p->NAMA_PRODUK }}</a></h4>
-                                        <p>{{ Str::limit($p->DESKRIPSI, 60) }}</p>
-                                        <div class="d-flex justify-content-between flex-lg-wrap mt-auto">
-                                            <p class="text-dark fs-5 fw-bold mb-0">Rp {{ number_format($p->HARGA, 0, ',', '.') }}</p>
-                                            
-                                            <div class="d-flex gap-1"> {{-- Pakai gap-1 biar tombolnya mepet rapi --}}
-                                                <a href="{{ route('katalog.show', $p->ID_PRODUK) }}" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                    <i class="fa fa-eye text-primary"></i>
-                                                </a>
-
-                                                <form action="{{ route('keranjang.add', $p->ID_PRODUK) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                        <i class="fa fa-shopping-bag text-primary"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @empty
-                            <div class="col-12 text-center py-5">
-                                <h5>Motif Sasirangan tidak ditemukan.</h5>
-                            </div>
-                            @endforelse
-
-                        </div>
-                        
-                        <div class="mt-5 d-flex justify-content-center">
-                            {{ $produk->links('pagination::bootstrap-5') }}
-                        </div>
-                    </div>
-                    </div>
-            </div>
+                       @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
         </div>
+    @endif
+
+    <div class="row g-4 katalog-grid">
+
+@foreach($produk as $p)
+
+<div class="col-md-6 col-xl-4">
+
+            <div class="card katalog-card border-0 h-100">
+
+                <img src="{{ asset('storage/'.$p->FOTO_PRODUK) }}"
+     class="card-img-top katalog-img"
+     alt="{{ $p->NAMA_PRODUK }}">
+
+                <div class="card-body">
+
+                    <span class="badge bg-secondary mb-2">
+                        {{ $p->kategori->NAMA_KATEGORI ?? 'Sasirangan' }}
+                    </span>
+
+                    <h5>{{ $p->NAMA_PRODUK }}</h5>
+
+                    <p class="text-muted">
+                        {{ Str::limit($p->DESKRIPSI, 60) }}
+                    </p>
+
+                    <h5 class="fw-bold">
+                        Rp {{ number_format($p->HARGA,0,',','.') }}
+                    </h5>
+
+                </div>
+
+                <div class="card-footer bg-white border-0 d-flex justify-content-between">
+
+                    <a href="{{ route('katalog.show',$p->ID_PRODUK) }}"
+                       class="btn btn-outline-secondary">
+                        Detail
+                    </a>
+
+                    <form action="{{ route('keranjang.add',$p->ID_PRODUK) }}"
+                          method="POST">
+                        @csrf
+
+                        <button class="btn btn-primary">
+                            <i class="fa fa-shopping-bag"></i>
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @endforeach
+
     </div>
+
+    <div class="mt-4">
+        {{ $produk->links('pagination::bootstrap-5') }}
+    </div>
+
 </div>
-@endsection
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endsection

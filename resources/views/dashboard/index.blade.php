@@ -3,10 +3,26 @@
 @section('title', 'Dashboard Statistik')
 
 @section('content')
+<div class="admin-banner mb-4">
+    <div class="banner-overlay">
+        <h2>Mellisari Sasirangan</h2>
+        <p>
+            Sistem Manajemen Penjualan dan Inventori
+        </p>
+    </div>
+</div>
+<div class="dashboard-header mb-4">
+    <h2>
+        Dashboard Mellisari Sasirangan
+    </h2>
+    <p>
+        Ringkasan penjualan dan aktivitas toko hari ini
+    </p>
+</div>
 <div class="row">
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-success"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="card card-statistic-1 dashboard-card">
+            <div class="card-icon bg-brown"><i class="fas fa-money-bill-wave"></i></div>
             <div class="card-wrap">
                 <div class="card-header"><h4>Omset Penjualan</h4></div>
                 <div class="card-body">Rp {{ number_format($total_omset, 0, ',', '.') }}</div>
@@ -14,8 +30,8 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-info"><i class="fas fa-shopping-basket"></i></div>
+        <div class="card card-statistic-1 dashboard-card">
+            <div class="card-icon bg-navy"><i class="fas fa-shopping-basket"></i></div>
             <div class="card-wrap">
                 <div class="card-header"><h4>Pesanan Baru</h4></div>
                 <div class="card-body">{{ $pesanan_baru }}</div>
@@ -23,8 +39,8 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-primary"><i class="fas fa-tshirt"></i></div>
+        <div class="card card-statistic-1 dashboard-card">
+            <div class="card-icon bg-navy"><i class="fas fa-tshirt"></i></div>
             <div class="card-wrap">
                 <div class="card-header"><h4>Total Produk</h4></div>
                 <div class="card-body">{{ $total_produk }}</div>
@@ -32,8 +48,8 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-warning"><i class="fas fa-shopping-cart"></i></div>
+        <div class="card card-statistic-1 dashboard-card">
+            <div class="card-icon bg-gold"><i class="fas fa-shopping-cart"></i></div>
             <div class="card-wrap">
                 <div class="card-header"><h4>Total Pesanan</h4></div>
                 <div class="card-body">{{ $total_pesanan }}</div>
@@ -67,13 +83,16 @@
 
 <div class="row">
     <div class="col-lg-7">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Stok Hampir Habis</h4>
-            </div>
+    <div class="card shadow border-0">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Stok Hampir Habis
+            </h4>
+        </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-hover align-middle">
                         <tr>
                             <th>Produk</th>
                             <th>Sisa Stok</th>
@@ -107,7 +126,7 @@
                 <ul class="list-unstyled list-unstyled-border">
                     @forelse($produk_terbaru as $baru)
                     <li class="media">
-                        <img class="mr-3 rounded" width="50" src="{{ asset('uploads/produk/' . $baru->GAMBAR_UTAMA) }}" alt="product">
+                        <img class="mr-3 rounded shadow-sm" width="50" src="{{ asset('uploads/produk/' . $baru->GAMBAR_UTAMA) }}" alt="product">
                         <div class="media-body">
                             <div class="float-right text-primary">Baru</div>
                             <div class="media-title">{{ $baru->NAMA_PRODUK }}</div>
