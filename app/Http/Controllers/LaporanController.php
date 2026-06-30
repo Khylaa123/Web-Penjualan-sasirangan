@@ -50,4 +50,17 @@ class LaporanController extends Controller
 
         return view('laporan.cetak', compact('pesanan', 'tgl_mulai', 'tgl_sampai', 'total_pendapatan'));
     }
+    public function penjualan()
+    {
+        // Mengambil pesanan yang sukses pembayarannya dan status pesanannya sudah Selesai/Dikirim
+        $laporanPenjualan = Pesanan::with(['user', 'pembayaran'])
+            ->whereHas('pembayaran', function($query) {
+                $query->where('STATUS_BAYAR', 'settlement');
+            })
+            ->whereIn('STATUS_PESANAN', ['Dikirim', 'Selesai'])
+            ->orderBy('TANGGAL_PESAN', 'desc')
+            ->get();
+
+        return view('admin.laporan.penjualan', compact('laporanPenjualan'));
+    }
 }

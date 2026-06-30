@@ -46,6 +46,25 @@
                 </div>
             </div>
         </div>
+
+        <div class="card my-4">
+            <div class="card-header bg-dark">
+                <h4 class="text-white">Pembayaran Kain Sasirangan (Midtrans)</h4>
+            </div>
+            <div class="card-body text-center">
+                <p class="mb-3">Total Akhir yang Harus Dibayar: <strong class="text-primary" style="font-size: 1.2rem;">Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</strong></p>
+                
+                @if($pesanan->STATUS_PESANAN == 'Menunggu Pembayaran' || $pesanan->STATUS_PESANAN == 'Pending')
+                    <button id="pay-button" class="btn btn-success btn-lg w-100">
+                        <i class="fas fa-credit-card"></i> Bayar Sekarang via Midtrans
+                    </button>
+                @else
+                    <div class="alert alert-info mb-0">
+                        Status Pesanan saat ini: <strong>{{ $pesanan->STATUS_PESANAN }}</strong>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <div class="col-12 col-md-4">
@@ -79,4 +98,65 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const payButton = document.getElementById('pay-button');
+        
+        // Ambil Snap Token dari Session (saat baru saja redirect dari keranjang)
+        const snapTokenFromSession = "{{ session('snapToken') }}";
+        
+        // Ambil Snap Token dari Database (jika ada, berguna saat halaman direfresh)
+        const snapTokenFromDatabase = "{{ $snapToken ?? ($pesanan->pembayaran->SNAP_TOKEN ?? '') }}";
+        
+        // Fungsi utama untuk memanggil pop-up Midtrans
+        function triggerMidtransSnap(token) {
+            if (!token) return;
+
+            window.snap.pay(token, {
+                onSuccess: function(result) {
+                    alert("Pembayaran Berhasil! Pesanan segera diproses.");
+                    console.log(result);
+                    window.location.href = "{{ route('pesanan.index') }}"; 
+                },
+                onPending: function(result) {
+                    alert("Menunggu Pembayaran. Harap segera selesaikan transaksi.");
+                    console.log(result);
+                    window.location.reload(); 
+                },
+                onError: function(result) {
+                    alert("Pembayaran Gagal! Silakan coba lagi.");
+                    console.log(result);
+                },
+                onClose: function() {
+                    alert('Halaman pembayaran ditutup sebelum transaksi diselesaikan.');
+                }
+            });
+        }
+
+        // Jalankan otomatis jika token terdeteksi dari session flash (baru checkout)
+        if (snapTokenFromSession) {
+            triggerMidtransSnap(snapTokenFromSession);
+        }
+
+        // Eksekusi manual jika pembeli menekan tombol bayar
+        if (payButton) {
+            payButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                // Prioritaskan token dari database jika halaman direfresh, jika tidak ada gunakan session
+                const tokenAktif = snapTokenFromDatabase || snapTokenFromSession;
+                
+                if (tokenAktif) {
+                    triggerMidtransSnap(tokenAktif);
+                } else {
+                    alert('Token pembayaran tidak ditemukan. Silakan pastikan data checkout valid.');
+                }
+            });
+        }
+    });
+</script>
 @endsection

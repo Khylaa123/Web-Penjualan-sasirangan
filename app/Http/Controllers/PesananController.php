@@ -19,11 +19,11 @@ class PesananController extends Controller
         if ($user->role == 'Admin' || $user->role == 'Pegawai') {
             // Jika Admin/Pegawai, ambil SEMUA data pesanan, urutkan dari yang terbaru
             // (Eager loading 'user' agar bisa menampilkan nama pembeli di tabel)
-            $pesanan = Pesanan::with('user')->orderBy('TANGGAL_PESANAN', 'desc')->get();
+            $pesanan = Pesanan::with('user')->orderBy('TANGGAL_PESAN', 'desc')->get();
         } else {
             // Jika Pembeli, HANYA ambil data pesanan miliknya sendiri
             $pesanan = Pesanan::where('ID_USER', $user->id)
-                              ->orderBy('TANGGAL_PESANAN', 'desc')
+                              ->orderBy('TANGGAL_PESAN', 'desc')
                               ->get();
         }
 
@@ -127,4 +127,5 @@ class PesananController extends Controller
         // (Opsional) Kalau mau cuma tampil di tab browser dulu baru diprint, 
         // ganti kata download jadi stream: return $pdf->stream(...);
     }
+    
 }

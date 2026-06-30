@@ -11,7 +11,7 @@
 </div>
 
 <div class="container py-5">
-    <form action="{{ route('checkout.proses') }}" method="POST">
+    <form id="checkout-form" action="{{ route('checkout.proses') }}" method="POST">
         @csrf
         <div class="row g-5">
             
@@ -116,7 +116,7 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-checkout w-100 mt-4">
+                    <button type="submit" id="btn-bayar" class="btn btn-checkout w-100 mt-4">
                         Lanjut ke Pembayaran
                     </button>
                     
@@ -126,4 +126,66 @@
         </div>
     </form>
 </div>
+
+<script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const formCheckout = document.getElementById('checkout-form');
+        const btnBayar = document.getElementById('btn-bayar');
+        if (formCheckout) {
+            formCheckout.addEventListener('submit', function(e) {
+                e.preventDefault(); // Mencegah halaman reload secara default
+                // Ubah teks tombol menjadi loading agar pembeli tahu proses sedang berjalan
+                btnBayar.disabled = true;
+                btnBayar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Pembayaran...';
+                // Ambil semua data inputan dari form (Nama, Alamat, tgl, dll)
+                const formData = new FormData(formCheckout);
+                // Kirim data ke CheckoutController via fetch API (AJAX)
+                fetch(formCheckout.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // JALANKAN POP-UP MIDTRANS SNAP LANGSUNG DI HALAMAN CHECKOUT
+                        window.snap.pay(data.snapToken, {
+                            onSuccess: function(result) {
+                                alert("Pembayaran Berhasil! Mengalihkan ke riwayat pesanan Anda...");
+                                window.location.href = data.redirect_url; // Pindah ke riwayat pesanan pembeli
+                            },
+                            onPending: function(result) {
+                                alert("Pesanan Dibuat! Silakan selesaikan pembayaran sesuai instruksi.");
+                                window.location.href = data.redirect_url; // Pindah agar bisa melihat tata cara bayar VA/Retail
+                            },
+                            onError: function(result) {
+                                alert("Terjadi kesalahan pada sistem pembayaran. Silakan coba lagi.");
+                                window.location.reload();
+                            },
+                            onClose: function() {
+                                alert("Anda menutup jendela pembayaran sebelum transaksi selesai.");
+                                window.location.href = data.redirect_url; // Tetap pindahkan ke riwayat agar bisa bayar nanti
+                            }
+                        });
+                    } else {
+                        alert("Gagal memproses checkout. Periksa kembali data Anda.");
+                        btnBayar.disabled = false;
+                        btnBayar.innerHTML = 'Lanjut Pembayaran';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Terjadi kesalahan koneksi server.");
+                    btnBayar.disabled = false;
+                    btnBayar.innerHTML = 'Lanjut Pembayaran';
+                });
+            });
+        }
+    });
+</script>
 @endsection

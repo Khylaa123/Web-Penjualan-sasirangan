@@ -14,6 +14,7 @@ class Pesanan extends Model
 
     protected $fillable = [
         'ID_USER', 
+        'ID_PESANAN',
         'ID_PENGIRIMAN', 
         'TANGGAL_PESAN', 
         'TOTAL_BERAT_GRAM', 
@@ -21,7 +22,8 @@ class Pesanan extends Model
         'BIAYA_PENGIRIMAN', 
         'TOTAL_AKHIR', 
         'STATUS_PESANAN', 
-        'RESI_PENGIRIMAN'
+        'RESI_PENGIRIMAN',
+        'TOTAL_BERAT_GRAM'
     ];
 
     public function user() {
