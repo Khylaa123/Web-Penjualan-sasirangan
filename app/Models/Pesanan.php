@@ -13,6 +13,7 @@ class Pesanan extends Model
     public $timestamps = false; 
 
     protected $fillable = [
+        'ID_PESANAN',
         'ID_USER', 
         'ID_PESANAN',
         'ID_PENGIRIMAN', 
