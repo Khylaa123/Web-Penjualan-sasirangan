@@ -78,7 +78,7 @@ class CheckoutController extends Controller
             'SUBTOTAL_PRODUK'   => $subtotal,
             'POTONGAN_DISKON'   => $potongan, // <-- Masuk ke database
             'TOTAL_AKHIR'       => $totalAkhir,
-            'STATUS_PESANAN'    => 'Pending'
+            'STATUS_PESANAN'    => 'Menunggu Pembayaran'
         ]);
 
         // Simpan detail pesanan & potong stok

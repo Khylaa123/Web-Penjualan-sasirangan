@@ -176,27 +176,63 @@
 }
 /*** Navbar End ***/
 
-/*** Hero Header ***/
 .hero-header {
-    background: linear-gradient(rgba(248, 223, 173, 0.1), rgba(248, 223, 173, 0.1)), url(../img/hero-img.jpg);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: 
+        linear-gradient(rgba(224, 215, 215, 0.55), rgba(255,255,255,0.55)),
+        url(../img/sasirangan2.png);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
+    opacity: 0.18;      /* transparansi */
+    filter: blur(4px);  /* blur */
+    transform: scale(1.05);
+
+    z-index: 1;
+}
+
+.hero-header > * {
+    position: relative;
+    z-index: 2;
 }
 
 .carousel-item {
     position: relative;
 }
-
-.carousel-item a {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 25px;
-    background: linear-gradient(rgba(20, 20, 20, 0.7), rgba(255, 181, 36, 0.7));
+.carousel-img{
+    height: 500px;
+    object-fit: cover;
+    border-radius: 20px;
 }
 
+.carousel-inner{
+    border-radius: 20px;
+    overflow: hidden;
+}
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px;
+    height: 50px;
+    background: #8B5E3C;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+    left: 15px;
+}
+
+.carousel-control-next {
+    right: 15px;
+}
 .carousel-control-next,
 .carousel-control-prev {
     width: 48px;
@@ -216,13 +252,15 @@
 .carousel-control-prev {
     margin-left: 20px;
 }
-
 .page-header {
     position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/cart-page-header-img.jpg);
-    background-position: center center;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/katalog1.png);
+
+    background-position: center -80px;
     background-repeat: no-repeat;
     background-size: cover;
+
+    size: 100px;
 }
 
 @media (min-width: 992px) {
@@ -239,8 +277,6 @@
     }
 }
 /*** Hero Header end ***/
-
-
 /*** featurs Start ***/
 .featurs .featurs-item .featurs-icon {
     position: relative;
@@ -272,9 +308,6 @@
     left: 50%; 
     transform: translate(-50%, -50%);
 }
-
-/*** service End ***/
-
 
 /*** Fruits Start ***/
 .fruite .tab-class .nav-item a.active {
@@ -318,8 +351,6 @@
 .fruite .fruite-item .fruite-img img:hover {
     transform: scale(1.3);
 }
-/*** Fruits End ***/
-
 
 /*** vesitable Start ***/
 .vesitable .vesitable-item {
@@ -495,3 +526,972 @@
 }
 /*** Footer End ***/
 
+/* Banner Katalog */
+.katalog-banner{
+    min-height:220px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background-position:center;
+    background-size:cover;
+}
+
+.katalog-banner h1{
+    font-size:55px;
+    font-weight:800;
+}
+
+.product-image{
+    width:100%;
+    height:260px;
+    object-fit:cover;
+    display:block;
+    padding:0;
+    background:#fff;
+}
+
+.fruite-item:hover .product-image{
+    transform:scale(1.08);
+}
+/* Overlay saat hover */
+.image-wrapper{
+    height:260px;
+    overflow:hidden;
+    position:relative;
+    background:#fff;
+}
+
+.hover-overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.35);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    transition:.4s;
+}
+
+.fruite-item:hover .hover-overlay{
+    opacity:1;
+}
+
+.fruite-item{
+    background:#fff;
+    border-radius:15px;
+    overflow:hidden;
+    transition:.3s;
+}
+
+.hover-overlay .btn{
+    background:#fff;
+    color:#8B5E3C;
+    font-weight:700;
+    padding:10px 25px;
+    border-radius:50px;
+    transition:.3s;
+}
+
+.hover-overlay .btn:hover{
+    background:#8B5E3C;
+    color:#fff;
+}
+.badge-katalog{
+    top:10px;
+    left:10px;
+    z-index:99;
+}
+
+/* Keranjang */
+.page-header{
+    min-height:250px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.page-header h1{
+    font-weight:800;
+    letter-spacing:1px;
+}
+.cart-product-img{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:10px;
+}
+.cart-total-card{
+    border-radius:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.cart-delete-btn{
+    width:40px;
+    height:40px;
+}
+
+.cart-product-img:hover{
+    transform:scale(1.08);
+}
+
+.table{
+    background:#fff;
+}
+
+.table thead th{
+    font-size:22px;
+    font-weight:700;
+    color:#45595b;
+    padding:25px 15px;
+}
+
+.table tbody td,
+.table tbody th{
+    vertical-align:middle;
+    padding:25px 15px;
+}
+.table tbody tr{
+    transition:.3s;
+}
+
+.table tbody tr:hover{
+    background:#f8f9fa;
+}
+.cart-delete-btn{
+    width:45px;
+    height:45px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:.3s;
+}
+
+.cart-delete-btn:hover{
+    transform:scale(1.1);
+}
+.cart-total-card{
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+/*PROFILE PELANGGAN*/
+.profile-card{
+    border-radius:30px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.12),
+    0 5px 15px rgba(0,0,0,.08);
+    margin-top:60px;
+}
+
+.profile-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 20px 40px rgba(0,0,0,.15);
+}
+
+.profile-info{
+    padding:20px;
+}
+
+.profile-info h3{
+    font-weight:700;
+}
+
+.profile-info p{
+    color:#6c757d;
+}
+
+.profile-action{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.profile-action .btn{
+    min-width:240px;
+    height:55px;
+    border-radius:50px;
+    font-weight:700;
+}
+
+.profile-stat{
+    padding:20px 0;
+}
+
+.profile-stat h2{
+    font-weight:700;
+}
+
+.profile-stat p{
+    color:#6c757d;
+    margin-bottom:0;
+}
+
+/* PROFILE SASIRANGAN*/
+.profile-header{
+    height:320px;
+    position:relative;
+    background:url('../img/Sasirangan 1.png');
+    background-size:cover;
+    background-position:center;
+}
+.profile-overlay{
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(
+        rgba(8,20,45,.75),
+        rgba(15,35,70,.85)
+    );
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding-top:30px;
+}
+
+.profile-avatar{
+    font-size:110px;
+    color:white;
+}
+.profile-overlay h2{
+    font-size:38px;
+    font-weight:800;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.profile-overlay p{
+    font-size:18px;
+    opacity:.9;
+}
+
+.profile-action .btn{
+    min-width:230px;
+    padding:14px 30px;
+    font-size:16px;
+    font-weight:700;
+    transition:.3s;
+}
+
+.profile-action .btn:hover{
+    transform:translateY(-3px);
+}
+.profile-logo{
+    width:130px;
+    height:130px;
+    object-fit:cover;
+    border-radius:50%;
+    border:5px solid #ffffff;
+    margin-top:40px;
+}
+.profile-logo{
+    transition:.4s;
+}
+
+.profile-logo:hover{
+    transform:scale(1.08);
+}
+.profile-stat{
+    transition:.3s;
+}
+
+.profile-stat:hover{
+    transform:translateY(-5px);
+}
+
+.profile-stat h2{
+    color:#8B5E3C;
+    font-size:40px;
+    font-weight:800;
+}
+.profile-page{
+    background:
+    linear-gradient(
+        rgba(245,245,245,.94),
+        rgba(245,245,245,.94)
+    ),
+    url('../img/Sasirangan 1.png');
+    background-size:cover;
+    background-attachment:fixed;
+    padding:30px 0;
+}
+.profile-stat-card{
+    background:#fff;
+    border-top:4px solid #8B5E3C;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:
+    0 10px 25px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.profile-stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.fruite-item .p-4{
+    padding:20px !important;
+}
+
+.fruite-item h4{
+    font-size:24px;
+    min-height:60px;
+}
+
+.fruite-item p{
+    margin-bottom:10px;
+}
+
+/* DASHBOARD ADMIN */
+
+.dashboard-card{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+}
+
+.dashboard-card .card-icon{
+    width:70px;
+    height:70px;
+    border-radius:15px;
+}
+
+.dashboard-card .card-body{
+    font-size:24px;
+    font-weight:700;
+}
+.bg-brown{
+    background:#8B5E3C !important;
+}
+
+.bg-navy{
+    background:#1E3A5F !important;
+}
+
+.bg-gold{
+    background:#C89B3C !important;
+}
+.dashboard-header{
+    background:linear-gradient(
+        135deg,
+        #1E3A5F,
+        #8B5E3C
+    );
+
+    color:white;
+    padding:30px;
+    border-radius:20px;
+    margin-bottom:25px;
+}
+
+.dashboard-header h2{
+    margin-bottom:10px;
+    font-weight:700;
+}
+.list-unstyled-border li{
+    padding:15px 0;
+    border-bottom:1px solid #eee;
+}
+/* CARD DASHBOARD SASIRANGAN */
+
+.dashboard-card{
+    border:none !important;
+    border-radius:20px !important;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.12) !important;
+    transition:.3s;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+}
+
+.dashboard-card .card-header{
+    background:transparent !important;
+    border:none !important;
+}
+
+.dashboard-card .card-body{
+    font-size:24px !important;
+    font-weight:700 !important;
+}
+/* ===== FEATURE BOX ===== */
+
+.feature-box{
+    background:#fff;
+    padding:30px;
+    text-align:center;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.feature-box:hover{
+    transform:translateY(-8px);
+}
+
+.feature-box i{
+    color:#C89B3C;
+    margin-bottom:15px;
+}
+
+.feature-box h5{
+    font-weight:700;
+    color:#1E3A5F;
+}
+
+/* ===== KATALOG ===== */
+
+.fruite-item{
+    background:white;
+    border:none !important;
+    border-radius:20px !important;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.fruite-item:hover{
+    transform:translateY(-10px);
+}
+
+.fruite-img{
+    height:280px;
+    overflow:hidden;
+}
+
+.fruite-img img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.hero-title{
+    font-size:56px;
+    font-weight:800;
+    color:#1E3A5F;
+    line-height:1.1;
+}
+/* PROMO SECTION */
+
+.promo-section{
+    background: linear-gradient(
+        135deg,
+        #f5f5f5,
+        #d9d9d9
+    );
+    color:#333;
+    border-radius:30px;
+    margin:60px auto;
+    max-width:1300px;
+    padding:90px 60px;
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.08);
+}
+
+.promo-section h2{
+    color:#2c2c2c;
+    font-weight:800;
+    font-size:58px;
+    line-height:1.2;
+    margin-bottom:25px;
+}
+
+.promo-section p{
+    color:#666;
+    font-size:24px;
+    line-height:1.8;
+    max-width:650px;
+    margin-bottom:35px;
+}
+
+.promo-img{
+    max-width:420px;
+    width:100%;
+    border-radius:25px;
+    box-shadow:
+    0 20px 40px rgba(0,0,0,.15);
+}
+
+.promo-img:hover{
+    transform:scale(1.05);
+}
+/* STATISTIK */
+
+.stat-number{
+    font-size:48px;
+    font-weight:800;
+    color:#8B5E3C;
+}
+/* TESTIMONI */
+.testimonial-card{
+    background:#fff;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 15px 30px rgba(0,0,0,.08);
+    text-align:center;
+    height:100%;
+    transition:.3s;
+}
+
+.testimonial-card:hover{
+    transform:translateY(-8px);
+}
+
+.testimonial-card p{
+    font-size:16px;
+    color:#666;
+}
+
+.testimonial-card h6{
+    margin-top:20px;
+    color:#8B5E3C;
+    font-weight:700;
+}
+.stat-number{
+    font-size:60px;
+    font-weight:800;
+    color:#8B5E3C;
+}
+
+.stat-number + p{
+    font-size:18px;
+    font-weight:600;
+}
+.fruite{
+    padding:40px 0 !important;
+    background:#f8f9fa;
+}
+.promo-section{
+    background: linear-gradient(
+        135deg,
+        #f5f5f5,
+        #d9d9d9
+    );
+
+    color:#333;
+    border-radius:30px;
+    margin:60px auto;
+    max-width:1300px;
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.08);
+}
+.promo-section h2{
+    color:#2c2c2c;
+    font-weight:800;
+}
+.promo-section p{
+    color:#666;
+}
+.stat-card{
+    background:#fff;
+    padding:35px 20px;
+    border-radius:20px;
+    box-shadow:
+    0 10px 25px rgba(0,0,0,.08);
+    height:100%;
+}
+
+.stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.stat-number{
+    font-size:48px;
+    font-weight:800;
+    color:#8B5E3C;
+}
+
+.stat-card p{
+    font-size:16px;
+    color:#666;
+    margin-top:10px;
+}
+.section-title{
+    text-align:center;
+}
+
+.section-title h2{
+    font-size:42px;
+    font-weight:800;
+    color:#1E3A5F;
+}
+
+.section-title p{
+    color:#777;
+    max-width:700px;
+    margin:auto;
+}
+.promo-section .btn{
+    background:#8B5E3C;
+    color:white;
+    border:none;
+    padding:16px 40px;
+    font-size:18px;
+    font-weight:700;
+    border-radius:50px;
+}
+
+.promo-section .btn:hover{
+    background:#6f4a2d;
+}
+.section-title{
+    font-size:48px;
+    font-weight:800;
+    color:#2c2c2c;
+}
+
+.section-subtitle{
+    color:#666;
+    font-size:18px;
+    max-width:500px;
+    margin:auto;
+}
+.quote-icon{
+    font-size:28px;
+    color:#b58a5a;
+    margin-bottom:15px;
+}
+
+.quantity-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.qty-btn{
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:50%;
+    background:#f3f3f3;
+}
+
+.qty-input{
+    width:60px;
+    text-align:center;
+    border:1px solid #ddd;
+    border-radius:10px;
+}
+.product-main-image{
+    width:100%;
+    height:500px;
+    object-fit:cover;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+.product-detail-card{
+    background:#fff;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+.table{
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.table thead{
+    background:#f5f5f5;
+    border-bottom:2px solid #dcdcdc;
+}
+
+.table thead th{
+    color:#2c2c2c;
+    font-weight:700;
+    font-size:18px;
+}
+.checkout-card{
+    background:#fff;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.checkout-item{
+    display:flex;
+    gap:15px;
+    align-items:center;
+}
+.btn-checkout{
+    background:#8B5E3C;
+    color:white;
+    border:none;
+    padding:15px;
+    border-radius:50px;
+    font-weight:700;
+}
+
+.btn-checkout:hover{
+    background:#6f4a2d;
+    color:white;
+}
+.product-image-wrapper{
+    background:#fff;
+    padding:15px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.product-main-image{
+    width:100%;
+    height:500px;
+    object-fit:cover;
+    border-radius:15px;
+}
+.table{
+    background:#fff;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+}
+
+.table tbody tr{
+    border-bottom:1px solid #f0f0f0;
+}
+
+.table tbody tr:hover{
+    background:#fafafa;
+}
+
+.product-meta{
+    display:flex;
+    gap:10px;
+}
+
+.product-meta .badge{
+    padding:8px 12px;
+    border-radius:30px;
+}
+
+.product-tabs{
+    margin-top:50px;
+}
+
+.product-tabs .tab-content{
+    border-radius:0 0 15px 15px;
+}
+
+.product-tabs table th{
+    width:35%;
+    color:#555;
+}
+
+.product-tabs table td{
+    color:#333;
+}
+@media(max-width:768px){
+    .hero-title{
+        font-size:40px;
+    }
+}
+
+/* SECTION BUDAYA */
+
+.culture-img{
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+
+    border-radius: 20px;
+
+    box-shadow:
+    0 10px 25px rgba(0,0,0,.12);
+}
+
+.culture-content{
+    padding-left: 70px;
+}
+
+.culture-content h2{
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.culture-content p{
+    font-size: 20px;
+    color: #666;
+    line-height: 1.8;
+}
+.fruite-categorie a{
+    color:#333 !important;
+    font-weight:500;
+}
+
+.featured-product h6{
+    color:#222 !important;
+}
+
+.featured-product p{
+    color:#8B5E3C !important;
+}
+
+.featured-product{
+    background:#fff;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+/* KATALOG FIX */
+
+.katalog-product-card{
+    background:#fff;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    transition:.3s;
+    height:100%;
+}
+
+.katalog-product-card:hover{
+    transform:translateY(-5px);
+}
+
+.katalog-product-card img{
+    width:100%;
+    height:260px;
+    object-fit:cover;
+}
+
+.katalog-product-body{
+    padding:20px;
+}
+
+.katalog-product-title{
+    font-size:18px;
+    font-weight:700;
+    min-height:50px;
+}
+
+.katalog-product-price{
+    font-size:20px;
+    font-weight:700;
+    color:#8B5E3C;
+}
+
+.katalog-card img{
+    width:100%;
+    height:250px;
+    object-fit:cover;
+    display:block;
+}
+
+.katalog-card{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.katalog-card:hover{
+    transform:translateY(-5px);
+}
+
+/* KATALOG FINAL */
+
+.katalog-card{
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    transition: .3s ease;
+    border: none;
+}
+
+.katalog-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.katalog-img{
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.katalog-card h5{
+    font-size: 18px;
+    font-weight: 700;
+    min-height: 45px;
+}
+
+.katalog-card .card-body{
+    padding: 15px 18px;
+}
+
+.katalog-card .card-footer{
+    padding: 12px 18px;
+}
+
+.katalog-card .btn{
+    border-radius: 30px;
+}
+
+.profile-stat-card{
+    transition: .3s;
+    max-width: 320px;
+    margin: auto;
+}
+
+.profile-stat-card:hover{
+    transform: translateY(-5px);
+}
+/* Efek Card Referensi */
+.katalog-card {
+    border-radius: 10px;
+    transition: 0.5s;
+    border: 1px solid #f2f2f2 !important;
+}
+
+.katalog-card:hover {
+    box-shadow: 0 0 55px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Efek Gambar Membesar saat Hover */
+.katalog-card .overflow-hidden img {
+    transition: 0.5s;
+}
+
+.katalog-card:hover .overflow-hidden img {
+    transform: scale(1.15);
+}
+
+/* Posisi Badge Kategori */
+.badge-katalog {
+    top: 15px !important;
+    left: 15px !important;
+    z-index: 2;
+    font-size: 14px;
+}
+
+/* Styling Button Keranjang mirip template */
+.btn-outline-warning {
+    color: #ffb524;
+    border-color: #ffb524;
+    transition: 0.3s;
+}
+
+.btn-outline-warning:hover {
+    background: #ffb524;
+    color: #fff;
+}

@@ -41,7 +41,7 @@
                             <tr>
                                 <th scope="row">
                                     <div class="d-flex align-items-center">
-                                        <img src="{{ asset('storage/' . $details['gambar']) }}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="{{ $details['nama_produk'] }}">
+                                        <img src="{{ asset('storage/' . $details['gambar']) }}" class="cart-product-img" alt="{{ $details['nama_produk'] }}">
                                     </div>
                                 </th>
                                 <td>
@@ -62,7 +62,7 @@
                                     <form action="{{ route('keranjang.remove', $id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-md rounded-circle bg-light border mt-4" onclick="return confirm('Yakin ingin menghapus produk ini dari keranjang?')">
+                                        <button type="submit" class="btn btn-danger rounded-circle cart-delete-btn" onclick="return confirm('Yakin ingin menghapus produk ini dari keranjang?')">
                                             <i class="fa fa-times text-danger"></i>
                                         </button>
                                     </form>
@@ -71,10 +71,17 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="6" class="text-center mt-4">
-                                <p class="mb-3">Keranjang belanja kamu masih kosong.</p>
-                                <a href="{{ url('/') }}" class="btn btn-primary rounded-pill text-white px-4">Mulai Belanja</a>
-                            </td>
+                            <td colspan="6" class="text-center py-5">
+                            <i class="fa fa-shopping-cart fa-4x text-secondary mb-3"></i>
+                            <h4>Keranjang Belanja Kosong</h4>
+                            <p class="text-muted">
+                                Belum ada produk yang ditambahkan.
+                            </p>
+                            <a href="{{ url('/') }}"
+                            class="btn btn-primary rounded-pill px-4">
+                                Mulai Belanja
+                            </a>
+                        </td>
                         </tr>
                     @endif
                 </tbody>
@@ -85,7 +92,7 @@
         <div class="row g-4 justify-content-end mt-5">
             <div class="col-8"></div>
             <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
-                <div class="bg-light rounded">
+                <div class="bg-light rounded cart-total-card">
                     <div class="p-4">
                         <h1 class="display-6 mb-4">Total <span class="fw-normal">Belanja</span></h1>
                         <div class="d-flex justify-content-between mb-4">
@@ -103,7 +110,10 @@
                         <h5 class="mb-0 ps-4 me-4">Total</h5>
                         <p class="mb-0 pe-4">Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}</p>
                     </div>
-                    <a href="{{ route('checkout.index') }}" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Lanjut Checkout</a>
+                    <a href="{{ route('checkout.index') }}"
+                    class="btn btn-primary w-100 rounded-pill py-3 fw-bold">
+                        Lanjut Checkout
+                    </a>
                 </div>
             </div>
         </div>
