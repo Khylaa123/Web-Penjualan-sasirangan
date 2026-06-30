@@ -71,19 +71,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Ulasan Produk
     Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
 
-    // ==========================================
+ // ==========================================
     // AREA KHUSUS ADMIN (Dilindungi Middleware)
     // ==========================================
-   // Ganti 'role:admin' menjadi 'role:Admin'
-Route::middleware('role:Admin')->group(function () {
+    Route::middleware(['auth', 'cekrole:admin'])->group(function () {
+        // Hak akses Hapus Master Data
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
         
-        // Rute Kelola Akun
-        Route::get('/kelola-akun', [UserController::class, 'index'])->name('user.index');
-        Route::post('/kelola-akun/tambah', [UserController::class, 'store'])->name('user.store');
+        // Route Manajemen Pengguna
+        Route::get('/kelola-akun', [UserController::class, 'index'])->name('users.index');
+        Route::post('/kelola-akun/simpan', [UserController::class, 'store'])->name('users.store');
+        Route::post('/kelola-akun/{id}/update', [UserController::class, 'update'])->name('users.update');
+        Route::get('/kelola-akun/{id}/hapus', [UserController::class, 'destroy'])->name('users.destroy');
     });
-});
+    });
 
 Route::get('/test-snap', function () {
     Config::$serverKey = config('midtrans.server_key');
