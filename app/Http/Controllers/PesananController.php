@@ -47,42 +47,34 @@ class PesananController extends Controller
     // 3. Update Status Pesanan - Memproses status dari Admin/Pegawai dan Pembeli
     public function updateStatus(Request $request, $id)
     {
-        // 1. Cari pesanan berdasarkan ID, dan load data kurirnya secara otomatis (Eager Loading)
         $pesanan = Pesanan::with('pengiriman')->findOrFail($id);
+        $statusBaru = $request->input('status', $request->input('status_pesanan'));
+        $resi = $request->input('resi', $request->input('resi_pengiriman'));
 
-        // ====================================================================
-        // AKSI ADMIN/PEGAWAI: Mengirim Pesanan (Ubah status jadi 'Dikirim')
-        // ====================================================================
-        if ($request->status_pesanan == 'Dikirim') {
-            
-            // Ambil nama kurir dari database dan ubah ke huruf besar semua agar validasi mudah
+        if ($statusBaru == 'Diproses' || $statusBaru == 'Dibatalkan') {
+            $pesanan->update([
+                'STATUS_PESANAN' => $statusBaru,
+            ]);
+
+            return redirect()->back()->with('success', 'Status pesanan berhasil diubah menjadi ' . $statusBaru);
+        }
+
+        if ($statusBaru == 'Dikirim') {
             $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR);
-            
-            // Daftar nama kurir instan yang TIDAK WAJIB memiliki nomor resi
             $kurirInstan = ['AMBIL DI TOKO', 'GOJEK', 'GRAB', 'GOJEK/GRAB'];
 
-            // Cek apakah kurir yang dipakai pembeli ada di dalam daftar kurir instan di atas?
             if (!in_array($namaKurir, $kurirInstan)) {
-                
-                // JIKA KURIR EKSPEDISI (JNE, J&T, POS, dll): Resi WAJIB diisi!
                 $request->validate([
-                    'resi_pengiriman' => 'required|string|max:50',
+                    'resi' => 'required|string|max:50',
                 ], [
-                    'resi_pengiriman.required' => 'Nomor Resi wajib diisi untuk kurir ekspedisi!'
+                    'resi.required' => 'Nomor Resi wajib diisi untuk kurir ekspedisi!'
                 ]);
-                
-                $nomorResi = $request->resi_pengiriman;
-                
+
+                $nomorResi = $resi;
             } else {
-                
-                // JIKA AMBIL DI TOKO atau GOJEK: Abaikan validasi resi.
-                // Jika Admin tidak mengisi apa-apa, otomatis diisi tulisan 'TANPA-RESI'.
-                // Tapi jika Admin mengisi (misal: isi Plat Nomor Driver), maka simpan isian tersebut.
-                $nomorResi = $request->resi_pengiriman ?? 'TANPA-RESI'; 
-                
+                $nomorResi = $resi ?? 'TANPA-RESI';
             }
 
-            // Eksekusi Update ke Database
             $pesanan->update([
                 'STATUS_PESANAN' => 'Dikirim',
                 'RESI_PENGIRIMAN' => $nomorResi
@@ -91,11 +83,7 @@ class PesananController extends Controller
             return redirect()->back()->with('success', 'Pesanan berhasil dikirim. (Metode: ' . $pesanan->pengiriman->NAMA_KURIR . ')');
         }
 
-        // ====================================================================
-        // AKSI PEMBELI: Menyelesaikan Pesanan (Ubah status jadi 'Selesai')
-        // ====================================================================
-        if ($request->status_pesanan == 'Selesai') {
-            
+        if ($statusBaru == 'Selesai') {
             $pesanan->update([
                 'STATUS_PESANAN' => 'Selesai'
             ]);
@@ -103,7 +91,6 @@ class PesananController extends Controller
             return redirect()->back()->with('success', 'Terima kasih! Pesanan telah selesai diterima.');
         }
 
-        // Jika status yang dikirim form tidak valid
         return redirect()->back()->with('error', 'Status pesanan tidak valid.');
     }
 
