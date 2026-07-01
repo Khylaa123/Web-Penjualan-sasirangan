@@ -158,6 +158,10 @@ class ProdukController extends Controller
             'GAMBAR_UTAMA' => $nama_foto
         ]);
 
+        // Jika kamu pakai cara mapping manual, pastikan baris ini ada:
+        $produk->DISKON_PERSEN = $request->DISKON_PERSEN ?? 0;
+        $produk->save();
+
         return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
     }
 }
