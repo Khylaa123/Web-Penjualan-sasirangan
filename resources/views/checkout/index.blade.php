@@ -45,12 +45,13 @@
                         <input type="text" name="no_telepon" class="form-control" required>
                     </div>
                     
-                    <div class="mb-3">
-                        <label>Metode Pembayaran</label>
-                        <select name="metode_pembayaran" class="form-control" required>
-                            <option value="Transfer Bank">Transfer Bank</option>
-                            <option value="COD">COD</option>
-                            <option value="E-Wallet">E-Wallet</option>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Metode Pengiriman</label>
+                        <select name="id_pengiriman" id="id_pengiriman" class="form-control" required>
+                            <option value="" data-biaya="0">-- Pilih Metode Pengiriman --</option>
+                            <option value="1" data-biaya="0">Ambil Sendiri - Ambil Langsung di Toko (Rp 0)</option>
+                            <option value="2" data-biaya="10000">COD - Bayar di Tempat (Rp 10.000)</option>
+                            <option value="3" data-biaya="15000">Kurir / JNE - Paket Regular Flat Rate (Rp 15.000)</option>
                         </select>
                     </div>
                     
@@ -67,7 +68,7 @@
                     
                     @php
                         $total = 0;
-                        $ongkir = 15000;
+                        $ongkir = 0; // Default diubah ke 0 agar sesuai dengan dropdown awal
                     @endphp
                     
                     @if(session('cart'))
@@ -92,19 +93,19 @@
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal</span>
-                        <strong>Rp {{ number_format($total,0,',','.') }}</strong>
+                        <strong>Rp <span id="display_subtotal">{{ number_format($total,0,',','.') }}</span></strong>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Ongkir</span>
-                        <strong>Rp {{ number_format($ongkir,0,',','.') }}</strong>
+                        <strong>Rp <span id="display_ongkir">{{ number_format($ongkir,0,',','.') }}</span></strong>
                     </div>
                     <hr>
                     
                     <div class="d-flex justify-content-between fs-5">
                         <strong>Total Keseluruhan</strong>
                         <strong class="text-primary">
-                            Rp {{ number_format($total + $ongkir, 0, ',', '.') }}
+                            Rp <span id="display_total">{{ number_format($total + $ongkir, 0, ',', '.') }}</span>
                         </strong>
                     </div>
                     
@@ -132,24 +133,50 @@
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- BAGIAN 1: PERHITUNGAN ONGKIR OTOMATIS ---
+        const selectPengiriman = document.getElementById('id_pengiriman');
+        const displayOngkir = document.getElementById('display_ongkir');
+        const displayTotal = document.getElementById('display_total');
+        const displaySubtotal = document.getElementById('display_subtotal');
+
+        if (selectPengiriman) {
+            selectPengiriman.addEventListener('change', function () {
+                let selectedOption = this.options[this.selectedIndex];
+                let biayaOngkir = parseInt(selectedOption.getAttribute('data-biaya')) || 0;
+
+                let subtotalText = displaySubtotal.innerText;
+                let subtotal = parseInt(subtotalText.replace(/\D/g, '')) || 0;
+
+                let totalAkhir = subtotal + biayaOngkir;
+
+                displayOngkir.innerText = biayaOngkir.toLocaleString('id-ID');
+                displayTotal.innerText = totalAkhir.toLocaleString('id-ID');
+            });
+        }
+
+        // --- BAGIAN 2: PROSES CHECKOUT AJAX (MIDTRANS) ---
         const formCheckout = document.getElementById('checkout-form');
         const btnBayar = document.getElementById('btn-bayar');
+        
         if (formCheckout) {
             formCheckout.addEventListener('submit', function(e) {
-                e.preventDefault(); // Mencegah halaman reload secara default
-                // Ubah teks tombol menjadi loading agar pembeli tahu proses sedang berjalan
+                e.preventDefault(); 
+                
                 btnBayar.disabled = true;
                 btnBayar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Pembayaran...';
-                // Ambil semua data inputan dari form (Nama, Alamat, tgl, dll)
+                
                 const formData = new FormData(formCheckout);
-                // Kirim data ke CheckoutController via fetch API (AJAX)
+                
                 fetch('/checkout/proses', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
+                    },
+                    // Mengubah input form menjadi JSON agar terbaca di Controller
+                    body: JSON.stringify(Object.fromEntries(formData)) 
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -163,10 +190,14 @@
                             },
                             onError: function(result) {
                                 alert("Pembayaran Gagal");
+                                btnBayar.disabled = false;
+                                btnBayar.innerHTML = 'Lanjut ke Pembayaran';
                             }
                         });
                     } else {
                         alert(data.message);
+                        btnBayar.disabled = false;
+                        btnBayar.innerHTML = 'Lanjut ke Pembayaran';
                     }
                 })
                 .catch(error => {
