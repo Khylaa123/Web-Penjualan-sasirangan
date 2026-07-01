@@ -9,17 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
-    // Menampilkan halaman Laporan Inventory (DataTables)
     public function index()
     {
-        // Mengambil data riwayat stok beserta relasi produk dan user yang input
-        $riwayat = RiwayatStok::with(['produk', 'user'])->orderBy('TANGGAL', 'desc')->get();
-        $produk = Produk::where('STATUS_AKTIF', 1)->get(); // Untuk dropdown form input
+        // Mengambil produk aktif untuk Dropdown Input
+        $produk = Produk::where('STATUS_AKTIF', 1)->get(); 
         
-        return view('admin.inventory.index', compact('riwayat', 'produk'));
+        // Mengambil histori barang masuk/keluar
+        $riwayat = RiwayatStok::with(['produk', 'user'])->orderBy('TANGGAL', 'desc')->get();
+        
+        return view('admin.inventory.index', compact('produk', 'riwayat'));
     }
 
-    // Fungsi untuk menambah pergerakan barang (Masuk/Keluar)
     public function store(Request $request)
     {
         $request->validate([
@@ -29,16 +29,16 @@ class InventoryController extends Controller
             'KETERANGAN' => 'required|string|max:255'
         ]);
 
-        // Insert murni ke riwayat_stok. Stok di tabel produk akan terupdate otomatis oleh Trigger MySQL
         RiwayatStok::create([
             'ID_PRODUK' => $request->ID_PRODUK,
-            'ID_USER' => Auth::id(), // Mencatat siapa pegawai yang input
+            'ID_USER' => Auth::id(),
             'TIPE_PERGERAKAN' => $request->TIPE_PERGERAKAN,
             'JUMLAH' => $request->JUMLAH,
             'KETERANGAN' => $request->KETERANGAN,
-            // TANGGAL otomatis terisi oleh current_timestamp
+            'TANGGAL' => now(), 
         ]);
 
-        return redirect()->back()->with('success', 'Data pergerakan stok berhasil dicatat.');
+        // Stok utama di tabel produk akan terupdate otomatis karena kamu punya Trigger MySQL
+        return redirect()->back()->with('success', 'Data Inventory berhasil dicatat. Stok telah diperbarui.');
     }
 }

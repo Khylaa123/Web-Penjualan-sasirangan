@@ -1,4 +1,10 @@
 <x-guest-layout>
+    @if(session('success'))
+        <div class="mb-4 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -32,15 +38,26 @@
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+        <div class="flex items-center justify-between mt-4">
+            <div class="flex items-center gap-4">
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}"
+                       class="text-sm text-indigo-600 hover:text-indigo-800 underline">
+                        Belum punya akun? Daftar
+                    </a>
+                @endif
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
+                @if (Route::has('password.request'))
+                    <a
+                        class="text-sm text-gray-600 hover:text-gray-900 underline"
+                        href="{{ route('password.request') }}">
+                        Lupa Password?
+                    </a>
+                @endif
+            </div>
+
+            <x-primary-button>
+                Login
             </x-primary-button>
         </div>
     </form>

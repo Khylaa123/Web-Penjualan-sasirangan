@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\UlasanProduk;
 use App\Models\Pesanan;
-use Illuminate\Support\Facades\\Auth;
+use Illuminate\Support\Facades\Auth;
 
 class UlasanController extends Controller
 {

@@ -39,6 +39,33 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
+        <!-- Nomor WhatsApp -->
+        <div class="mt-4">
+            <x-input-label for="no_whatsapp" :value="'Nomor WhatsApp'" />
+            <x-text-input
+                id="no_whatsapp"
+                class="block mt-1 w-full"
+                type="text"
+                name="no_whatsapp"
+                :value="old('no_whatsapp')"
+                required
+            />
+            <x-input-error :messages="$errors->get('no_whatsapp')" class="mt-2" />
+        </div>
+
+        <!-- Alamat -->
+        <div class="mt-4">
+            <x-input-label for="alamat_lengkap" :value="'Alamat Lengkap'" />
+            <textarea
+                id="alamat_lengkap"
+                name="alamat_lengkap"
+                rows="3"
+                class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required>{{ old('alamat_lengkap') }}</textarea>
+
+            <x-input-error :messages="$errors->get('alamat_lengkap')" class="mt-2" />
+        </div>
+
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}

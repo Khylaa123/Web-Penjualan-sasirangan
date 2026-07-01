@@ -11,12 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // INI YANG KITA TAMBAHKAN: Mendaftarkan nama panggilan 'role' untuk satpam kita
+        // Daftarkan alias middleware kamu di sini
         $middleware->alias([
+            'cekrole' => \App\Http\Middleware\CekRole::class,
             'role' => \App\Http\Middleware\CekRole::class,
         ]);
-        
-        // TAMBAHKAN BLOK INI: Pengecualian untuk Midtrans
+
+        // Pengecualian untuk Midtrans
         $middleware->validateCsrfTokens(except: [
             'midtrans-callback',
         ]);

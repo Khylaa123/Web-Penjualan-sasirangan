@@ -40,7 +40,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/voucher/hapus', [CheckoutController::class, 'hapusVoucher'])->name('checkout.voucher.hapus');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware([
+    'auth',
+    'verified',
+    'cekrole:Admin,Pegawai'
+])->group(function () {
     
     // Rute Profil Bawaan
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -75,7 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
  // ==========================================
     // AREA KHUSUS ADMIN (Dilindungi Middleware)
     // ==========================================
-    Route::middleware(['auth', 'cekrole:admin'])->group(function () {
+    Route::middleware(['auth', 'cekrole:Admin'])->group(function () {
         // Hak akses Hapus Master Data
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');

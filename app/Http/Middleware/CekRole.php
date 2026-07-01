@@ -20,11 +20,16 @@ class CekRole
         }
 
         // 2. Cek apakah 'role' user yang login cocok dengan role yang diizinkan?
-        if (in_array(Auth::user()->role, $roles)) {
-            return $next($request); // Silakan lewat!
-        }
+        $userRole = strtolower((string) Auth::user()->role);
+        $allowedRoles = array_map(fn ($role) => strtolower(trim($role)), $roles);
 
-        // 3. Kalau role-nya tidak cocok (misal Pegawai maksa masuk ke area Admin)
-        abort(403, 'AKSES DITOLAK! Halaman ini hanya untuk Admin.');
+        // Role tidak sesuai
+if (Auth::user()->role === 'Pembeli') {
+    return redirect()->route('home')
+        ->with('error', 'Silakan login sebagai Admin atau Pegawai.');
+}
+
+abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
+    
     }
 }
