@@ -37,8 +37,8 @@
                                         <td>
                                             <span class="fw-bold text-dark">{{ $d->produk->NAMA_PRODUK ?? 'Produk Dihapus' }}</span>
                                         </td>
-                                        <td>Rp {{ number_format($d->HARGA_SATUAN, 0, ',', '.') }}</td>
-                                        <td class="text-center">{{ $d->JUMLAH }} Meter</td>
+                                        <td>Rp {{ number_format($d->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
+                                        <td class="text-center">{{ $d->JUMLAH_BELI }} Meter</td>
                                         <td class="text-end fw-bold">Rp {{ number_format($d->SUBTOTAL, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach

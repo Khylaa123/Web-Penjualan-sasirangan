@@ -51,7 +51,7 @@
                     <h4 class="fw-bold mb-4">Produk Unggulan</h4>
                     @foreach($featured as $f)
                     <div class="d-flex mb-3 align-items-center">
-                        <img src="{{ asset('storage/'.$f->FOTO_PRODUK) }}" width="70" height="70" class="rounded" style="object-fit: cover;">
+                        <img src="{{ asset('storage/'.$f ->FOTO_PRODUK) }}" width="70" height="70" class="rounded" style="object-fit: cover;">
                         <div class="ms-3">
                             <h6 class="mb-1"><a href="{{ route('katalog.show', $f->ID_PRODUK) }}" class="text-dark">{{ $f->NAMA_PRODUK }}</a></h6>
                             <small class="fw-bold text-primary">Rp {{ number_format($f->HARGA,0,',','.') }}</small>

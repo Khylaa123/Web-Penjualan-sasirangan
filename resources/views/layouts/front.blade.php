@@ -55,26 +55,32 @@
                         <a href="{{ route('katalog.index') }}" class="nav-item nav-link {{ request()->routeIs('katalog.index') ? 'active' : '' }}">Katalog</a>
                         <a href="{{ route('riwayat.pesanan') }}" class="nav-item nav-link {{ request()->routeIs('riwayat.*') ? 'active' : '' }}">Riwayat Pesanan</a>
                     </div>
-                    <div class="d-flex m-3 me-0">
+                    <div class="d-flex align-items-center m-3 me-0 gap-2">
                         <a href="{{ route('keranjang.index') }}"
-                           class="position-relative me-4 my-auto">
+                           class="position-relative me-3 my-auto">
                             <i class="fa fa-shopping-bag fa-2x"></i>
                             <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1"
                                 style="top:-5px;left:15px;height:20px;min-width:20px;">
                                {{ session('cart') ? collect(session('cart'))->sum('jumlah') : 0 }}
                             </span>
                         </a>
-                        
-                        @auth
-                        <a href="{{ route('profil-pelanggan') }}" class="my-auto">
-                            <i class="fas fa-user fa-2x"></i>
-                        </a>
-                        @endauth 
+
                         @guest
-                        <a href="{{ route('login') }}" class="my-auto">
-                            <i class="fas fa-user fa-2x"></i>
-                        </a>
-                        @endguest 
+                            <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm">Login</a>
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Daftar</a>
+                        @endguest
+
+                        @auth
+                            <a href="{{ route('riwayat.pesanan') }}" class="nav-item nav-link px-2">Riwayat Pesanan</a>
+                            <a href="{{ route('profil.index') }}" class="nav-item nav-link px-2">
+                                Profil ({{ Auth::user()->name }})
+                            </a>
+
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                            </form>
+                        @endauth
                     </div>
                 </div>
             </nav>

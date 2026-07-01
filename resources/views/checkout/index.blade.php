@@ -143,46 +143,37 @@
                 // Ambil semua data inputan dari form (Nama, Alamat, tgl, dll)
                 const formData = new FormData(formCheckout);
                 // Kirim data ke CheckoutController via fetch API (AJAX)
-                fetch(formCheckout.action, {
+                fetch('/checkout/proses', {
                     method: 'POST',
-                    body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // JALANKAN POP-UP MIDTRANS SNAP LANGSUNG DI HALAMAN CHECKOUT
-                        window.snap.pay(data.snapToken, {
+                        window.snap.pay(data.snap_token, {
                             onSuccess: function(result) {
-                                alert("Pembayaran Berhasil! Mengalihkan ke riwayat pesanan Anda...");
-                                window.location.href = data.redirect_url; // Pindah ke riwayat pesanan pembeli
+                                window.location.href = data.redirect_url;
                             },
                             onPending: function(result) {
-                                alert("Pesanan Dibuat! Silakan selesaikan pembayaran sesuai instruksi.");
-                                window.location.href = data.redirect_url; // Pindah agar bisa melihat tata cara bayar VA/Retail
+                                window.location.href = data.redirect_url;
                             },
                             onError: function(result) {
-                                alert("Terjadi kesalahan pada sistem pembayaran. Silakan coba lagi.");
-                                window.location.reload();
-                            },
-                            onClose: function() {
-                                alert("Anda menutup jendela pembayaran sebelum transaksi selesai.");
-                                window.location.href = data.redirect_url; // Tetap pindahkan ke riwayat agar bisa bayar nanti
+                                alert("Pembayaran Gagal");
                             }
                         });
                     } else {
-                        alert("Gagal memproses checkout. Periksa kembali data Anda.");
-                        btnBayar.disabled = false;
-                        btnBayar.innerHTML = 'Lanjut Pembayaran';
+                        alert(data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert("Terjadi kesalahan koneksi server.");
+                    alert('Terjadi kesalahan saat memproses checkout.');
                     btnBayar.disabled = false;
-                    btnBayar.innerHTML = 'Lanjut Pembayaran';
+                    btnBayar.innerHTML = 'Lanjut ke Pembayaran';
                 });
             });
         }

@@ -30,14 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
     Route::post('/checkout/voucher', [CheckoutController::class, 'cekVoucher'])->name('checkout.voucher');
     Route::get('/checkout/voucher/hapus', [CheckoutController::class, 'hapusVoucher'])->name('checkout.voucher.hapus');
+    Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.index');
 });
 
-Route::middleware([
-    'auth',
-    'verified',
-    'cekrole:Admin,Pegawai'
-])->group(function () {
-    
+Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -45,7 +41,8 @@ Route::middleware([
     Route::get('/profil-pelanggan', function () { return view('front.profile'); })->name('profil-pelanggan');
 
     // Dashboard & Master Data
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('role:Admin,Pegawai');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('role:Admin,Pegawai');
     Route::resource('kategori', KategoriController::class)->except(['destroy']);
     Route::resource('produk', ProdukController::class)->except(['destroy']);
     Route::resource('riwayat-stok', RiwayatStokController::class)->except(['edit', 'update', 'destroy', 'show']);
@@ -55,27 +52,17 @@ Route::middleware([
     Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
     Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
     Route::post('/pesanan/{id}/update', [PesananController::class, 'updateStatus'])->name('pesanan.update');
-    
-    // Riwayat Pesanan (Pelanggan)
-    Route::get('/riwayat-pesanan', [FrontController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
-    Route::get('/riwayat-pesanan/{id}', [FrontController::class, 'detailPesanan'])->name('riwayat.detail');
 
-    // Keranjang, Laporan, Ulasan
-    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
-    Route::delete('/keranjang/remove/{id}', [KeranjangController::class, 'remove'])->name('keranjang.remove');
+    // Laporan, Ulasan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
     Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
 
- // ==========================================
-    // AREA KHUSUS ADMIN (Dilindungi Middleware)
-    // ==========================================
-    Route::middleware(['auth', 'cekrole:Admin'])->group(function () {
-        // Hak akses Hapus Master Data
+    // Area khusus Admin
+    Route::middleware(['auth', 'role:Admin'])->group(function () {
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
-        
-        // Manajemen Pengguna
+
         Route::get('/kelola-akun', [UserController::class, 'index'])->name('users.index');
         Route::post('/kelola-akun/simpan', [UserController::class, 'store'])->name('users.store');
         Route::post('/kelola-akun/{id}/update', [UserController::class, 'update'])->name('users.update');
@@ -83,19 +70,11 @@ Route::middleware([
     });
 });
 
-// Test Snap
-Route::get('/test-snap', function () {
-    Config::$serverKey = config('midtrans.server_key');
-    Config::$isProduction = config('midtrans.is_production');
-    Config::$isSanitized = config('midtrans.is_sanitized');
-    Config::$is3ds = config('midtrans.is_3ds');
-
-    $params = [
-        'transaction_details' => ['order_id' => 'ORD-999-' . time(), 'gross_amount' => 170000],
-        'customer_details' => ['first_name' => 'KHAYLA ANNISA PUTRI', 'email' => 'khayla@gmail.com'],
-    ];
-
-    return response()->json(['snap_token' => Snap::getSnapToken($params)]);
+Route::middleware(['auth', 'role:Pembeli'])->group(function () {
+    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index')->middleware('role:Pembeli');
+    Route::delete('/keranjang/remove/{id}', [KeranjangController::class, 'remove'])->name('keranjang.remove');
+    Route::get('/riwayat-pesanan', [FrontController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
+    Route::get('/riwayat-pesanan/{id}', [FrontController::class, 'detailPesanan'])->name('riwayat.detail');
 });
 
 require __DIR__.'/auth.php';

@@ -51,14 +51,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($pesanan->detail as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->produk->NAMA_PRODUK ?? 'Produk Dihapus' }}</td>
-                <td>Rp {{ number_format($item->HARGA_SATUAN, 0, ',', '.') }}</td>
-                <td style="text-align: center;">{{ $item->JUMLAH }}</td>
-                <td class="text-right">Rp {{ number_format($item->SUBTOTAL, 0, ',', '.') }}</td>
-            </tr>
+           @foreach($pesanan->detail as $index => $item)
+<tr>
+    <td>{{ $index + 1 }}</td>
+    <td>{{ $item->produk->NAMA_PRODUK ?? 'Produk Dihapus' }}</td>
+    <td>Rp {{ number_format($item->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
+    <td style="text-align: center;">{{ $item->JUMLAH_BELI }}</td>
+    <td class="text-right">Rp {{ number_format($item->SUBTOTAL, 0, ',', '.') }}</td>
+</tr>
+@endforeach
             @endforeach
         </tbody>
         <tfoot>

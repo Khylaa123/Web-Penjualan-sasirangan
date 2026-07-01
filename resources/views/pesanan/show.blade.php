@@ -24,8 +24,8 @@
                             @foreach($pesanan->detail as $d)
                             <tr>
                                 <td>{{ $d->produk->NAMA_PRODUK }}</td>
-                                <td>Rp {{ number_format($d->HARGA_SATUAN, 0, ',', '.') }}</td>
-                                <td class="text-center">{{ $d->JUMLAH }}</td>
+                                <td>Rp {{ number_format($d->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
+                                <td class="text-center">{{ $d->JUMLAH_BELI }}</td>
                                 <td class="text-right">Rp {{ number_format($d->SUBTOTAL, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
@@ -54,11 +54,13 @@
             <div class="card-body text-center">
                 <p class="mb-3">Total Akhir yang Harus Dibayar: <strong class="text-primary" style="font-size: 1.2rem;">Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</strong></p>
                 
-                @if($pesanan->STATUS_PESANAN == 'Menunggu Pembayaran' || $pesanan->STATUS_PESANAN == 'Pending')
-                    <button id="pay-button" class="btn btn-success btn-lg w-100">
-                        <i class="fas fa-credit-card"></i> Bayar Sekarang via Midtrans
-                    </button>
-                @else
+                @if(Auth::check() && Auth::user()->role === 'Pembeli' && $pesanan->STATUS_PESANAN == 'Menunggu Pembayaran')
+                    <div class="alert alert-warning mt-4">
+                        <h5>Pembayaran Kain Sasirangan (Midtrans)</h5>
+                        <p>Total Akhir yang Harus Dibayar: <strong>Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</strong></p>
+                        <button id="pay-button" class="btn btn-success btn-lg">Bayar Sekarang</button>
+                    </div>
+                @elseif($pesanan->STATUS_PESANAN != 'Menunggu Pembayaran')
                     <div class="alert alert-info mb-0">
                         Status Pesanan saat ini: <strong>{{ $pesanan->STATUS_PESANAN }}</strong>
                     </div>

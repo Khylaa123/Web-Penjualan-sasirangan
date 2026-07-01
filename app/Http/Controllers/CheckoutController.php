@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
-use App\Models\RiwayatStok;
 use App\Models\Voucher;
 use App\Models\MetodePengiriman;
 use Illuminate\Support\Facades\Auth;
@@ -74,7 +73,7 @@ class CheckoutController extends Controller
         // 1. Ambil data pengiriman
         $metode = MetodePengiriman::first();
         if (!$metode) {
-            return redirect()->back()->with('error', 'Data pengiriman belum diatur di database.');
+            return response()->json(['success' => false, 'message' => 'Data pengiriman belum diatur di database.'], 400);
         }
 
         // 2. Hitung Total
@@ -104,27 +103,18 @@ class CheckoutController extends Controller
 
             foreach ($cart as $id_produk => $item) {
                 DetailPesanan::create([
-                    'ID_PESANAN'   => $pesanan->ID_PESANAN,
-                    'ID_PRODUK'    => $id_produk,
-                    'JUMLAH'       => $item['jumlah'],
-                    'HARGA_SATUAN' => $item['harga'],
-                    'SUBTOTAL'     => $item['harga'] * $item['jumlah']
-                ]);
-
-                RiwayatStok::create([
+                    'ID_PESANAN'      => $pesanan->ID_PESANAN,
                     'ID_PRODUK'       => $id_produk,
-                    'ID_USER'         => Auth::id(),
-                    'TIPE_PERGERAKAN' => 'Keluar',
-                    'JUMLAH'          => $item['jumlah'],
-                    'TANGGAL'         => now(),
-                    'KETERANGAN'      => 'Order ID: ' . $pesanan->ID_PESANAN
+                    'HARGA_SAAT_BELI' => $item['harga'],
+                    'JUMLAH_BELI'     => $item['jumlah'],
+                    'SUBTOTAL'        => $item['harga'] * $item['jumlah']
                 ]);
             }
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal memproses pesanan: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal memproses pesanan: ' . $e->getMessage()], 500);
         }
 
         // 4. Midtrans
@@ -145,8 +135,12 @@ class CheckoutController extends Controller
         ]);
 
         session()->forget(['cart', 'voucher']);
-        
-        return redirect()->route('pesanan.show', $pesanan->ID_PESANAN)
-            ->with('snapToken', $snapToken);
+
+        return response()->json([
+            'success' => true,
+            'snap_token' => $snapToken,
+            'order_id' => $pesanan->ID_PESANAN,
+            'redirect_url' => route('riwayat.detail', $pesanan->ID_PESANAN)
+        ]);
     }
 }
