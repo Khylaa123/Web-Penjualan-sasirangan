@@ -15,8 +15,8 @@ class UserController extends Controller
         // Mengambil semua data user, diurutkan berdasarkan role
         $users = User::orderBy('role', 'asc')->get();
         
-        // Asumsi frontend nanti menyimpan filenya di folder resources/views/admin/users/index.blade.php
-        return view('admin.users.index', compact('users'));
+        // PERBAIKAN: Hapus "admin." agar langsung membaca folder users
+        return view('users.index', compact('users'));
     }
 
     // Menyimpan user baru (misal Admin menambahkan Pegawai)

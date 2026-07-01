@@ -66,6 +66,9 @@
             <li class="{{ Request::is('riwayat-stok*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('riwayat-stok.index') }}"><i class="fas fa-boxes"></i> <span>Kelola Stok</span></a>
             </li>
+            <li class="{{ Request::is('pengguna*') ? 'active' : '' }}">
+              <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i> <span>Manajemen Pengguna</span></a>
+            </li>
 
             <li class="menu-header">Transaksi</li>
             <li class="{{ Request::is('pesanan*') ? 'active' : '' }}">

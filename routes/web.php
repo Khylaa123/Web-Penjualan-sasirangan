@@ -63,10 +63,10 @@ Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function ()
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
 
-        Route::get('/kelola-akun', [UserController::class, 'index'])->name('users.index');
-        Route::post('/kelola-akun/simpan', [UserController::class, 'store'])->name('users.store');
-        Route::post('/kelola-akun/{id}/update', [UserController::class, 'update'])->name('users.update');
-        Route::get('/kelola-akun/{id}/hapus', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/pengguna', [UserController::class, 'index'])->name('users.index');
+        Route::post('/pengguna', [UserController::class, 'store'])->name('users.store');
+        Route::put('/pengguna/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/pengguna/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 });
 
