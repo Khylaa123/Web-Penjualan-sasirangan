@@ -70,20 +70,30 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // 1. Ambil data pengiriman
-        $metode = MetodePengiriman::first();
-        if (!$metode) {
-            return response()->json(['success' => false, 'message' => 'Data pengiriman belum diatur di database.'], 400);
+        // 1. Ambil data pengiriman secara dinamis berdasarkan input dropdown pembeli
+        $id_pengiriman = $request->input('id_pengiriman');
+        if (!$id_pengiriman) {
+            return response()->json(['success' => false, 'message' => 'Silakan pilih metode pengiriman terlebih dahulu.'], 400);
         }
 
-        // 2. Hitung Total
+        $metode = MetodePengiriman::find($id_pengiriman);
+        if (!$metode) {
+            return response()->json(['success' => false, 'message' => 'Metode pengiriman tidak valid.'], 400);
+        }
+
+        // Ambil nominal biaya dari kolom BIAYA murni yang sudah kita buat di database sebelumnya
+        $ongkir = $metode->BIAYA; 
+
+        // 2. Hitung Total Belanjaan
         $subtotal = 0;
         foreach ($cart as $item) {
             $subtotal += $item['harga'] * $item['jumlah'];
         }
         
         $potongan = session()->has('voucher') ? session('voucher')['potongan'] : 0;
-        $totalAkhir = max($subtotal - $potongan, 0);
+        
+        // Rumus Total Akhir yang benar: (Subtotal - Diskon Voucher) + Biaya Ongkir Terpilih
+        $totalAkhir = max($subtotal - $potongan, 0) + $ongkir;
 
         // 3. Proses Transaksi Database
         DB::beginTransaction();
@@ -91,12 +101,12 @@ class CheckoutController extends Controller
             $pesanan = Pesanan::create([
                 'ID_PESANAN'       => 'INV-' . time(),
                 'ID_USER'          => Auth::id(),
-                'ID_PENGIRIMAN'    => $metode->ID_PENGIRIMAN,
+                'ID_PENGIRIMAN'    => $metode->ID_PENGIRIMAN, // Menyimpan ID pengiriman pilihan user
                 'TANGGAL_PESAN'    => now(),
                 'TOTAL_BERAT_GRAM' => 1000,
                 'SUBTOTAL_PRODUK'  => $subtotal,
-                'BIAYA_PENGIRIMAN' => 15000,
-                'TOTAL_AKHIR'      => $totalAkhir,
+                'BIAYA_PENGIRIMAN' => $ongkir,      // Dinamis (0 jika ambil sendiri, 10rb jika COD, 15rb jika JNE)
+                'TOTAL_AKHIR'      => $totalAkhir,   // Total akhir yang sinkron dengan ongkir baru
                 'STATUS_PESANAN'   => 'Menunggu Pembayaran',
                 'RESI_PENGIRIMAN'  => null
             ]);

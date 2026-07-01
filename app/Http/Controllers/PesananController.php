@@ -33,8 +33,8 @@ class PesananController extends Controller
     // 2. Menampilkan Detail Pesanan (Invoice/Struk)
     public function show($id)
     {
-        // Ambil data pesanan beserta relasi user dan detail barang yang dibeli
-        $pesanan = Pesanan::with(['user', 'detail.produk'])->findOrFail($id);
+        // Ambil data pesanan beserta relasi user, detail barang, dan kurir pengiriman
+        $pesanan = Pesanan::with(['user', 'detail.produk', 'pengiriman'])->findOrFail($id);
 
         // Keamanan tambahan: Cegah pembeli mengintip pesanan orang lain lewat URL
         if (Auth::user()->role == 'Pembeli' && $pesanan->ID_USER != Auth::id()) {
@@ -60,10 +60,13 @@ class PesananController extends Controller
         }
 
         if ($statusBaru == 'Dikirim') {
-            $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR);
-            $kurirInstan = ['AMBIL DI TOKO', 'GOJEK', 'GRAB', 'GOJEK/GRAB'];
+            $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR ?? '');
+            
+            // Cek apakah metode pengiriman termasuk ekspedisi (JNE/J&T/dll) atau instan/ambil sendiri
+            $isEkspedisi = ($pesanan->ID_PENGIRIMAN == 3) || in_array($namaKurir, ['JNE', 'J&T', 'KURIR / JNE', 'EKSPEDISI']);
 
-            if (!in_array($namaKurir, $kurirInstan)) {
+            if ($isEkspedisi) {
+                // Jika ekspedisi, wajib mengisi nomor resi asli
                 $request->validate([
                     'resi' => 'required|string|max:50',
                 ], [
@@ -72,7 +75,8 @@ class PesananController extends Controller
 
                 $nomorResi = $resi;
             } else {
-                $nomorResi = $resi ?? 'TANPA-RESI';
+                // Jika instan (Gojek/Ambil Sendiri/COD), otomatis diset TANPA-RESI oleh sistem
+                $nomorResi = 'TANPA-RESI';
             }
 
             $pesanan->update([
@@ -80,7 +84,7 @@ class PesananController extends Controller
                 'RESI_PENGIRIMAN' => $nomorResi
             ]);
 
-            return redirect()->back()->with('success', 'Pesanan berhasil dikirim. (Metode: ' . $pesanan->pengiriman->NAMA_KURIR . ')');
+            return redirect()->back()->with('success', 'Pesanan berhasil dikirim. (Metode: ' . ($pesanan->pengiriman->NAMA_KURIR ?? 'Instan') . ')');
         }
 
         if ($statusBaru == 'Selesai') {
@@ -110,9 +114,5 @@ class PesananController extends Controller
         
         // Return download langsung ke perangkat pembeli
         return $pdf->download('Invoice-Sasirangan-' . $pesanan->ID_PESANAN . '.pdf');
-        
-        // (Opsional) Kalau mau cuma tampil di tab browser dulu baru diprint, 
-        // ganti kata download jadi stream: return $pdf->stream(...);
     }
-    
 }

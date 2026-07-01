@@ -6,19 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kategori extends Model
 {
-    // Beri tahu nama tabelnya
-    protected $table = 'KATEGORI_PRODUK';
-
-    // Beri tahu primary key-nya
+    // Merujuk ke nama tabel asli di database kamu
+    protected $table = 'kategori_produk';
+    
     protected $primaryKey = 'ID_KATEGORI';
-
-    // Matikan timestamps karena tabel kita tidak punya created_at & updated_at
+    
     public $timestamps = false;
 
-    
-   protected $fillable = [
-    'NAMA_KATEGORI', 
-    'PREFIX_KODE', // <-- Tambahkan ini agar tidak diblokir Laravel
-    'ICON'
-];
+    protected $fillable = [
+        'NAMA_KATEGORI',
+        'PREFIX_KODE',
+        'ICON'
+    ];
+
+    // Relasi ke Produk (Satu kategori memiliki banyak produk)
+    public function produk()
+    {
+        return $this->hasMany(Produk::class, 'ID_KATEGORI', 'ID_KATEGORI');
+    }
 }

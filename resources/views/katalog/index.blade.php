@@ -66,8 +66,14 @@
                     @forelse($produk as $p)
                     <div class="col-md-6 col-lg-4">
                         <div class="rounded position-relative fruite-item h-100 d-flex flex-column border border-secondary shadow-sm">
-                            <div class="fruite-img">
-                                <img src="{{ asset('storage/' . $p->FOTO_PRODUK) }}" class="img-fluid w-100 rounded-top" alt="{{ $p->NAMA_PRODUK }}" style="height: 250px; object-fit: cover;">
+                            <div class="fruite-img position-relative">
+                                <img src="{{ asset('storage/' . ($p->FOTO_PRODUK ?? $p->GAMBAR_UTAMA)) }}" class="img-fluid w-100 rounded-top" alt="{{ $p->NAMA_PRODUK }}" style="height: 250px; object-fit: cover;">
+
+                                @if($p->DISKON_PERSEN > 0)
+                                <span class="position-absolute top-0 start-0 bg-danger text-white px-3 py-1 fw-bold rounded-end">
+                                    Diskon {{ $p->DISKON_PERSEN }}%
+                                </span>
+                                @endif
                             </div>
                             
                             <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
@@ -75,13 +81,44 @@
                             </div>
 
                             <div class="p-4 rounded-bottom flex-grow-1 d-flex flex-column">
-                                <h5 class="mb-3"><a href="{{ route('katalog.show', $p->ID_PRODUK) }}" class="text-dark">{{ $p->NAMA_PRODUK }}</a></h5>
+                                <h5 class="mb-2"><a href="{{ route('katalog.show', $p->ID_PRODUK) }}" class="text-dark">{{ $p->NAMA_PRODUK }}</a></h5>
+
+                                @php
+                                    $rating = $p->rata_rata_rating ?? 0;
+                                    $bintangPenuh = floor($rating);
+                                    $setengahBintang = ($rating - $bintangPenuh) >= 0.5;
+                                @endphp
+                                <div class="mb-2 text-warning small">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= $bintangPenuh)
+                                            <i class="fas fa-star"></i>
+                                        @elseif($i == $bintangPenuh + 1 && $setengahBintang)
+                                            <i class="fas fa-star-half-alt"></i>
+                                        @else
+                                            <i class="far fa-star text-muted"></i>
+                                        @endif
+                                    @endfor
+                                    <span class="text-muted ms-1">({{ number_format($rating, 1) }})</span>
+                                </div>
+
+                                <p class="text-muted small flex-grow-1 mb-3">
+                                    {{ Str::limit($p->DESKRIPSI, 80) }}
+                                </p>
                                 
-                                <div class="d-flex justify-content-between flex-lg-wrap mt-auto pt-2">
-                                    <div class="w-100 mb-3 text-center">
-                                        <p class="text-dark fs-5 fw-bold mb-0">Rp {{ number_format($p->HARGA,0,',','.') }}</p>
-                                    </div>
-                                    
+                                <div class="mt-auto pt-2">
+                                    @if($p->DISKON_PERSEN > 0)
+                                        <div class="text-muted text-decoration-line-through small mb-1">
+                                            Rp {{ number_format($p->HARGA, 0, ',', '.') }}
+                                        </div>
+                                        <div class="text-danger fw-bold fs-5 mb-3">
+                                            Rp {{ number_format($p->harga_setelah_diskon, 0, ',', '.') }}
+                                        </div>
+                                    @else
+                                        <div class="text-primary fw-bold fs-5 mb-3">
+                                            Rp {{ number_format($p->HARGA, 0, ',', '.') }}
+                                        </div>
+                                    @endif
+
                                     <a href="{{ route('katalog.show', $p->ID_PRODUK) }}" class="btn border border-secondary rounded-pill px-3 py-2 w-100 text-primary">
                                         <i class="fa fa-eye me-2"></i> Detail Produk
                                     </a>

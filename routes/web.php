@@ -13,6 +13,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CallbackController;
 use App\Http\Controllers\UlasanController;
+use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\KatalogController;
 use Illuminate\Support\Facades\Route;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -20,9 +22,14 @@ use Midtrans\Snap;
 // Route Public
 Route::get('/', [FrontController::class, 'index'])->name('home');
 Route::post('/midtrans-callback', [CallbackController::class, 'midtransCallback']);
-Route::get('/katalog', [FrontController::class, 'katalog'])->name('katalog.index');
+Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
 Route::get('/katalog/{id}', [FrontController::class, 'show'])->name('katalog.show');
 Route::post('/keranjang/add/{id}', [KeranjangController::class, 'add'])->name('keranjang.add');
+
+// Route untuk pengelolaan voucher di sisi Admin/Pegawai
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('voucher', VoucherController::class);
+});
 
 // Route Checkout
 Route::middleware('auth')->group(function () {
@@ -67,6 +74,7 @@ Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function ()
         Route::post('/pengguna', [UserController::class, 'store'])->name('users.store');
         Route::put('/pengguna/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/pengguna/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::resource('voucher', VoucherController::class);
     });
 });
 

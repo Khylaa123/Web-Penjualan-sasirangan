@@ -20,6 +20,12 @@ class UlasanProduk extends Model
         'TANGGAL_ULASAN'
     ];
 
+    // Relasi ke Detail Pesanan (Ulasan ini milik barang yang mana di pesanan)
+    public function detailPesanan()
+    {
+        return $this->belongsTo(DetailPesanan::class, 'ID_DETAIL', 'ID_DETAIL');
+    }
+
     // Relasi ke User (Siapa yang mengulas)
     public function user()
     {

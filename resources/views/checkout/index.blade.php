@@ -68,7 +68,7 @@
                     
                     @php
                         $total = 0;
-                        $ongkir = 0; // Default diubah ke 0 agar sesuai dengan dropdown awal
+                        $ongkir = 0; // Default diubah awal ke 0 mengikuti keadaan awal sebelum pilih dropdown
                     @endphp
                     
                     @if(session('cart'))
@@ -134,7 +134,7 @@
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
         
-        // --- BAGIAN 1: PERHITUNGAN ONGKIR OTOMATIS ---
+        // --- PROSES 1: PERUBAHAN ANGKA ONGKIR DI LAYARSecara REALTIME ---
         const selectPengiriman = document.getElementById('id_pengiriman');
         const displayOngkir = document.getElementById('display_ongkir');
         const displayTotal = document.getElementById('display_total');
@@ -155,10 +155,9 @@
             });
         }
 
-        // --- BAGIAN 2: PROSES CHECKOUT AJAX (MIDTRANS) ---
+        // --- PROSES 2: AJAX SUBMIT KE SERVER ---
         const formCheckout = document.getElementById('checkout-form');
         const btnBayar = document.getElementById('btn-bayar');
-        
         if (formCheckout) {
             formCheckout.addEventListener('submit', function(e) {
                 e.preventDefault(); 
@@ -175,7 +174,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    // Mengubah input form menjadi JSON agar terbaca di Controller
+                    // Sekarang mengonversi seluruh input data form (termasuk id_pengiriman) menjadi JSON ke server
                     body: JSON.stringify(Object.fromEntries(formData)) 
                 })
                 .then(response => response.json())

@@ -69,7 +69,11 @@
             <li class="{{ Request::is('pengguna*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i> <span>Manajemen Pengguna</span></a>
             </li>
-
+<li class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('voucher.index') }}">
+        <i class="fas fa-ticket-alt"></i> <span>Manajemen Voucher</span>
+    </a>
+</li>
             <li class="menu-header">Transaksi</li>
             <li class="{{ Request::is('pesanan*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('pesanan.index') }}"><i class="fas fa-shopping-cart"></i> <span>Data Pesanan</span></a>

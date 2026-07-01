@@ -11,8 +11,6 @@ class Voucher extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'KODE_VOUCHER',
-        'POTONGAN_HARGA',
-        'STATUS_AKTIF'
+        'KODE_VOUCHER', 'POTONGAN_HARGA', 'STATUS_AKTIF'
     ];
 }
