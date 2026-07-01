@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Produk; // Pastikan model Produk di-import
+use App\Models\Produk;
 
 class KeranjangController extends Controller
 {
@@ -26,6 +26,7 @@ class KeranjangController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil dihapus dari keranjang!');
     }
 
+    // Fungsi untuk menambahkan produk ke keranjang
     public function add(Request $request, $id)
     {
         // Cari data produk berdasarkan ID
@@ -34,15 +35,17 @@ class KeranjangController extends Controller
         // Ambil sesi keranjang saat ini
         $cart = session()->get('cart', []);
 
-        // Jika produk sudah ada di keranjang, tambah jumlahnya
+        // Tangkap input angka dari Front-End (jika tidak ada input, anggap 1)
+        $jumlah_pesan = (int) $request->input('jumlah', 1);
+
+        // Jika produk sudah ada di keranjang, tambah jumlahnya sesuai inputan
         if(isset($cart[$id])) {
-            $cart[$id]['jumlah']++;
+            $cart[$id]['jumlah'] += $jumlah_pesan; 
         } else {
             // Jika belum ada, buat item baru di keranjang
             $cart[$id] = [
                 "nama_produk" => $produk->NAMA_PRODUK,
-                "jumlah"      => 1,
-                // UBAH BAGIAN INI: Gunakan harga_akhir dari Accessor tadi
+                "jumlah"      => $jumlah_pesan, 
                 "harga"       => $produk->harga_akhir, 
                 "gambar"      => $produk->GAMBAR_UTAMA, 
                 "berat"       => $produk->BERAT_GRAM
@@ -52,6 +55,6 @@ class KeranjangController extends Controller
         // Simpan kembali ke sesi
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', $produk->NAMA_PRODUK . ' berhasil ditambahkan ke keranjang!');
+        return redirect()->back()->with('success', $produk->NAMA_PRODUK . ' berhasil ditambahkan ke keranjang sebanyak ' . $jumlah_pesan . ' item!');
     }
 }

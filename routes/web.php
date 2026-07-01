@@ -17,22 +17,14 @@ use Illuminate\Support\Facades\Route;
 use Midtrans\Config;
 use Midtrans\Snap;
 
-// INI YANG DIGANTI YA BOSS
+// Route Public
 Route::get('/', [FrontController::class, 'index'])->name('home');
-
-// Route untuk Webhook Midtrans (TANPA /api)
 Route::post('/midtrans-callback', [CallbackController::class, 'midtransCallback']);
-
-// Rute Halaman Katalog
 Route::get('/katalog', [FrontController::class, 'katalog'])->name('katalog.index');
-
-// Rute Detail Produk
 Route::get('/katalog/{id}', [FrontController::class, 'show'])->name('katalog.show');
-
-// Rute Aksi Tambah ke Keranjang
 Route::post('/keranjang/add/{id}', [KeranjangController::class, 'add'])->name('keranjang.add');
 
-// Rute Checkout (Pastikan rute ini dibungkus middleware Auth ya, supaya yang bisa checkout cuma yang sudah login)
+// Route Checkout
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
@@ -46,34 +38,33 @@ Route::middleware([
     'cekrole:Admin,Pegawai'
 ])->group(function () {
     
-    // Rute Profil Bawaan
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profil-pelanggan', function () { return view('front.profile'); })->name('profil-pelanggan');
 
-    // Rute Dashboard Utama Kita
+    // Dashboard & Master Data
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Rute Master Data (Kecuali Hapus)
     Route::resource('kategori', KategoriController::class)->except(['destroy']);
     Route::resource('produk', ProdukController::class)->except(['destroy']);
     Route::resource('riwayat-stok', RiwayatStokController::class)->except(['edit', 'update', 'destroy', 'show']);
 
-    // Rute Pesanan
+    // Pesanan
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
     Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
     Route::post('/pesanan/{id}/update', [PesananController::class, 'updateStatus'])->name('pesanan.update');
+    
+    // Riwayat Pesanan (Pelanggan)
+    Route::get('/riwayat-pesanan', [FrontController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
+    Route::get('/riwayat-pesanan/{id}', [FrontController::class, 'detailPesanan'])->name('riwayat.detail');
 
-    // Rute Keranjang Belanja
+    // Keranjang, Laporan, Ulasan
     Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
     Route::delete('/keranjang/remove/{id}', [KeranjangController::class, 'remove'])->name('keranjang.remove');
-
-    // Rute Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
-
-    // Rute Ulasan Produk
     Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
 
  // ==========================================
@@ -84,14 +75,15 @@ Route::middleware([
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
         
-        // Route Manajemen Pengguna
+        // Manajemen Pengguna
         Route::get('/kelola-akun', [UserController::class, 'index'])->name('users.index');
         Route::post('/kelola-akun/simpan', [UserController::class, 'store'])->name('users.store');
         Route::post('/kelola-akun/{id}/update', [UserController::class, 'update'])->name('users.update');
         Route::get('/kelola-akun/{id}/hapus', [UserController::class, 'destroy'])->name('users.destroy');
     });
-    });
+});
 
+// Test Snap
 Route::get('/test-snap', function () {
     Config::$serverKey = config('midtrans.server_key');
     Config::$isProduction = config('midtrans.is_production');
@@ -99,14 +91,8 @@ Route::get('/test-snap', function () {
     Config::$is3ds = config('midtrans.is_3ds');
 
     $params = [
-        'transaction_details' => [
-            'order_id' => 'ORD-999-' . time(), 
-            'gross_amount' => 170000, 
-        ],
-        'customer_details' => [
-            'first_name' => 'KHAYLA ANNISA PUTRI',
-            'email' => 'khayla@gmail.com',
-        ],
+        'transaction_details' => ['order_id' => 'ORD-999-' . time(), 'gross_amount' => 170000],
+        'customer_details' => ['first_name' => 'KHAYLA ANNISA PUTRI', 'email' => 'khayla@gmail.com'],
     ];
 
     return response()->json(['snap_token' => Snap::getSnapToken($params)]);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Kategori;
+use App\Models\Pesanan;
 use Illuminate\Http\Request;
 
 class FrontController extends Controller
@@ -79,5 +80,24 @@ class FrontController extends Controller
                                 ->get();
 
         return view('katalog.show', compact('produk', 'kategori_sidebar', 'produk_terkait'));
+    }
+        public function riwayatPesanan()
+    {
+        // Ambil data pesanan khusus milik pelanggan yang sedang login
+        $pesanan = Pesanan::where('ID_USER', auth()->user()->id)
+                        ->orderBy('TANGGAL_PESAN', 'desc')
+                        ->get();
+
+        return view('front.riwayat_pesanan', compact('pesanan'));
+    }
+
+    public function detailPesanan($id)
+    {
+        // Cari detail pesanan berdasarkan ID dan pastikan milik user yang login
+        $pesanan = Pesanan::with('detail.produk')
+                        ->where('ID_USER', auth()->user()->id)
+                        ->findOrFail($id);
+
+        return view('front.detail_pesanan', compact('pesanan'));
     }
 }

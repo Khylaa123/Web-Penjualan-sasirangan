@@ -51,9 +51,9 @@
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                     <div class="navbar-nav mx-auto">
-                        <a href="{{ url('/') }}" class="nav-item nav-link active">Beranda</a>
-                        <a href="#" class="nav-item nav-link">Katalog</a>
-                        <a href="#" class="nav-item nav-link">Tentang Kami</a>
+                        <a href="{{ url('/') }}" class="nav-item nav-link {{ request()->is('/') ? 'active' : '' }}">Beranda</a>
+                        <a href="{{ route('katalog.index') }}" class="nav-item nav-link {{ request()->routeIs('katalog.index') ? 'active' : '' }}">Katalog</a>
+                        <a href="{{ route('riwayat.pesanan') }}" class="nav-item nav-link {{ request()->routeIs('riwayat.*') ? 'active' : '' }}">Riwayat Pesanan</a>
                     </div>
                     <div class="d-flex m-3 me-0">
                         <a href="{{ route('keranjang.index') }}"
@@ -66,11 +66,10 @@
                         </a>
                         
                         @auth
-                        <a href="#" class="my-auto">
+                        <a href="{{ route('profil-pelanggan') }}" class="my-auto">
                             <i class="fas fa-user fa-2x"></i>
                         </a>
-                        @endauth
-                        
+                        @endauth 
                         @guest
                         <a href="{{ route('login') }}" class="my-auto">
                             <i class="fas fa-user fa-2x"></i>
