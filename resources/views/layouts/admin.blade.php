@@ -59,19 +59,12 @@
             <li class="{{ Request::is('produk*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('produk.index') }}"><i class="fas fa-box"></i> <span>Data Produk</span></a>
             </li>
-<<<<<<< HEAD
-            <li class="{{ Request::is('riwayat-stok*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('riwayat-stok.index') }}"><i class="fas fa-boxes"></i> <span>Kelola Stok</span></a>
-            </li>
+            
             <li class="{{ Request::is('inventory*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('inventory.index') }}">
-                <i class="fas fa-warehouse"></i> <span>Inventory Barang</span>
-              </a>
+              <a class="nav-link" href="{{ route('inventory.index') }}"><i class="fas fa-warehouse"></i> <span>Inventory Barang</span></a>
             </li>
 
-            <li class="menu-header">Transaksi</li>
-=======
->>>>>>> 8ea2df5af7b9939347e9f9b7c1211e01aa3913c3
+
             <li class="{{ Request::is('pesanan*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('pesanan.index') }}"><i class="fas fa-shopping-cart"></i> <span>Data Pesanan</span></a>
             </li>
@@ -79,9 +72,11 @@
               <a class="nav-link" href="{{ route('admin.voucher.index') }}"><i class="fas fa-ticket-alt"></i> <span>Manajemen Voucher</span></a>
             </li>
             
+            @if(auth()->user()->role == 'Admin')
             <li class="{{ Request::is('pengguna*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i> <span>Data Pengguna</span></a>
             </li>
+            @endif
 
             <li class="menu-header">Laporan</li>
             <li class="{{ Request::is('laporan*') ? 'active' : '' }}">

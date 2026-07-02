@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
-use Midtrans\Snap;
 
 // Controllers
 use App\Http\Controllers\KategoriController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\RiwayatStokController;
 use App\Http\Controllers\PesananController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryExportController; // PERBAIKAN: Import Controller Export
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\KeranjangController;
 use App\Http\Controllers\CheckoutController;
@@ -37,44 +37,49 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 // Route Checkout & Profil (Semua User Login)
 Route::middleware('auth')->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
-    Route::post('/checkout/voucher', [CheckoutController::class, 'cekVoucher'])->name('checkout.voucher');
-    Route::get('/checkout/voucher/hapus', [CheckoutController::class, 'hapusVoucher'])->name('checkout.voucher.hapus');
-    Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.index');
-});
-
-// Area Khusus Admin & Pegawai
-Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function () {
-    // Profile
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/proses', [CheckoutController::class, 'prosesCheckout'])->name('checkout.proses');
+    
+    // Inventory (Ditambah rute PDF agar tombol Export PDF di view tidak error)
+    Route::get('/inventory/pdf', [InventoryController::class, 'pdf'])->name('inventory.pdf');
+    Route::resource('inventory', InventoryController::class);
+});
 
-    Route::get('/profil-pelanggan', function () {
-        return view('front.profile');
-    })->name('profil-pelanggan');
+// Area Khusus Admin & Pegawai
+Route::middleware(['auth', 'role:Admin,Pegawai'])->group(function () {
+    // Kategori
+    Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
+    Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
+    Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/{kategori}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/kategori/{kategori}', [KategoriController::class, 'update'])->name('kategori.update');
 
-    /*
-    |--------------------------
-    | DASHBOARD
-    |--------------------------
-    */
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('kategori', KategoriController::class)->except(['destroy']);
-    Route::resource('produk', ProdukController::class)->except(['destroy']);
-    Route::resource('riwayat-stok', RiwayatStokController::class)->except(['edit', 'update', 'destroy', 'show']);
+    // Produk
+    Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
+    Route::get('/produk/create', [ProdukController::class, 'create'])->name('produk.create');
+    Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
+    Route::get('/produk/{produk}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
+    Route::put('/produk/{produk}', [ProdukController::class, 'update'])->name('produk.update');
 
-    // Pesanan & Laporan
-    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
-    Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
-    Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
-    Route::post('/pesanan/{id}/update', [PesananController::class, 'updateStatus'])->name('pesanan.update');
+    // PERBAIKAN: Stok & Riwayat Stok (Ubah nama rute menjadi riwayat-stok.index)
+    Route::get('/riwayat-stok', [RiwayatStokController::class, 'index'])->name('riwayat-stok.index');
+    Route::post('/riwayat-stok/update', [RiwayatStokController::class, 'updateStok'])->name('riwayat-stok.update');
+
+    // Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
-    
-    // Area Spesifik Admin Saja
+
+    // Manajemen Pesanan Toko (Sisi Admin)
+    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
+    Route::post('/pesanan/{id}/status', [PesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+
+    // Batasan Khusus Hanya Admin
     Route::middleware(['role:Admin'])->group(function () {
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
@@ -83,7 +88,6 @@ Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function ()
         Route::put('/pengguna/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/pengguna/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     });
-
 });
 
 // Area Khusus Pembeli (Pelanggan)
@@ -95,8 +99,8 @@ Route::middleware(['auth', 'role:Pembeli'])->group(function () {
     Route::get('/riwayat-pesanan/{id}', [FrontController::class, 'detailPesanan'])->name('riwayat.detail');
     Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
     
-    // PERBAIKAN: Route Ulasan dipindah ke sini agar Pembeli memiliki hak akses (TIDAK 403 LAGI)
-    Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
+    Route::get('/ulasan/create/{id_produk}', [UlasanController::class, 'create'])->name('ulasan.create');
+    Route::post('/ulasan/store', [UlasanController::class, 'store'])->name('ulasan.store');
 });
 
 require __DIR__.'/auth.php';

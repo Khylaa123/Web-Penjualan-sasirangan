@@ -19,6 +19,7 @@ class InventoryExportController extends Controller
             return ($item->HARGA ?? 0) * ($item->STOK ?? 0);
         });
 
+        // Load view PDF
         $pdf = Pdf::loadView('inventory.pdf', compact(
             'produk',
             'total_produk',
@@ -26,6 +27,7 @@ class InventoryExportController extends Controller
             'nilai_inventory'
         ));
 
-        return $pdf->download('inventory-laporan.pdf');
+        // PERBAIKAN: Menggunakan stream() agar PDF terbuka (Preview) di browser, bukan langsung terdownload
+        return $pdf->stream('Laporan_Inventory_Mellisari.pdf');
     }
 }
