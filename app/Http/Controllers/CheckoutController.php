@@ -74,7 +74,7 @@ class CheckoutController extends Controller
         // 1. Ambil data pengiriman
         $metode = MetodePengiriman::first();
         if (!$metode) {
-            return redirect()->back()->with('error', 'Data pengiriman belum diatur di database.');
+            return response()->json(['success' => false, 'message' => 'Data pengiriman belum diatur di database.'], 400);
         }
 
         // 2. Hitung Total
@@ -104,17 +104,17 @@ class CheckoutController extends Controller
 
             foreach ($cart as $id_produk => $item) {
                 DetailPesanan::create([
-                    'ID_PESANAN'   => $pesanan->ID_PESANAN,
-                    'ID_PRODUK'    => $id_produk,
-                    'JUMLAH'       => $item['jumlah'],
-                    'HARGA_SATUAN' => $item['harga'],
-                    'SUBTOTAL'     => $item['harga'] * $item['jumlah']
+                    'ID_PESANAN'      => $pesanan->ID_PESANAN,
+                    'ID_PRODUK'       => $id_produk,
+                    'JUMLAH_BELI'     => $item['jumlah'],
+                    'HARGA_SAAT_BELI' => $item['harga'], 
+                    'SUBTOTAL'        => $item['harga'] * $item['jumlah']
                 ]);
 
                 RiwayatStok::create([
                     'ID_PRODUK'       => $id_produk,
                     'ID_USER'         => Auth::id(),
-                    'TIPE_PERGERAKAN' => 'Keluar',
+                    'TIPE_PERGERAKAN' => 'keluar',
                     'JUMLAH'          => $item['jumlah'],
                     'TANGGAL'         => now(),
                     'KETERANGAN'      => 'Order ID: ' . $pesanan->ID_PESANAN
@@ -124,7 +124,7 @@ class CheckoutController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal memproses pesanan: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal database: ' . $e->getMessage()], 500);
         }
 
         // 4. Midtrans
@@ -133,20 +133,28 @@ class CheckoutController extends Controller
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        $snapToken = Snap::getSnapToken([
-            'transaction_details' => [
-                'order_id' => $pesanan->ID_PESANAN, 
-                'gross_amount' => $totalAkhir
-            ],
-            'customer_details' => [
-                'first_name' => Auth::user()->name, 
-                'email' => Auth::user()->email
-            ]
-        ]);
+        try {
+            $snapToken = Snap::getSnapToken([
+                'transaction_details' => [
+                    'order_id' => $pesanan->ID_PESANAN, 
+                    'gross_amount' => $totalAkhir
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name ?? 'Guest', 
+                    'email' => Auth::user()->email ?? 'guest@example.com'
+                ]
+            ]);
 
-        session()->forget(['cart', 'voucher']);
-        
-        return redirect()->route('pesanan.show', $pesanan->ID_PESANAN)
-            ->with('snapToken', $snapToken);
+            session()->forget(['cart', 'voucher']);
+            
+            return response()->json([
+                'success' => true,
+                'snapToken' => $snapToken,
+                'redirect_url' => route('pesanan.show', $pesanan->ID_PESANAN)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Midtrans Error: ' . $e->getMessage()], 500);
+        }
     }
 }

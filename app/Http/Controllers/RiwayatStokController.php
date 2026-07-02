@@ -12,15 +12,14 @@ class RiwayatStokController extends Controller
     // Menampilkan halaman riwayat barang masuk & keluar
     public function index()
     {
+        // Ambil riwayat stok
         $riwayat = RiwayatStok::with(['produk', 'user'])->orderBy('TANGGAL', 'desc')->get();
-        return view('riwayat_stok.index', compact('riwayat'));
-    }
-
-    // Menampilkan form tambah stok masuk/keluar
-    public function create()
-    {
+        
+        // Ambil data produk untuk dropdown di dalam Modal
         $produk = Produk::where('STATUS_AKTIF', 1)->get();
-        return view('riwayat_stok.create', compact('produk'));
+        
+        // Pastikan nama foldernya sesuai dengan tempat kamu menyimpan file index.blade.php
+        return view('riwayat_stok.index', compact('riwayat', 'produk'));
     }
 
     // Menyimpan data pergerakan stok
@@ -30,10 +29,10 @@ class RiwayatStokController extends Controller
             'ID_PRODUK'       => 'required',
             'TIPE_PERGERAKAN' => 'required|in:masuk,keluar',
             'JUMLAH'          => 'required|integer|min:1',
-            'KETERANGAN'      => 'nullable|string|max:255'
+            'KETERANGAN'      => 'required|string|max:255' // Ubah nullable jadi required jika wajib diisi
         ]);
 
-        // Cek validasi khusus jika barang KELUAR
+        // Cek validasi khusus jika barang KELUAR (Logika yang sangat bagus!)
         if ($request->TIPE_PERGERAKAN == 'keluar') {
             $produk = Produk::findOrFail($request->ID_PRODUK);
             if ($produk->STOK < $request->JUMLAH) {
@@ -43,13 +42,23 @@ class RiwayatStokController extends Controller
 
         RiwayatStok::create([
             'ID_PRODUK'       => $request->ID_PRODUK,
-            // Jika belum login sempurna, sementara pakai ID 1 agar tidak error
-            'ID_USER'         => Auth::id() ?? 1, 
+            'ID_USER'         => Auth::id() ?? 1, // Fallback ke ID 1 jika belum login (untuk testing)
             'TIPE_PERGERAKAN' => $request->TIPE_PERGERAKAN,
             'JUMLAH'          => $request->JUMLAH,
             'KETERANGAN'      => $request->KETERANGAN
         ]);
 
         return redirect()->route('riwayat-stok.index')->with('success', 'Riwayat stok berhasil dicatat! Stok utama otomatis diperbarui.');
+    }
+
+    // Menghapus data pergerakan stok
+    public function destroy($id)
+    {
+        $riwayat = RiwayatStok::findOrFail($id);
+        
+        // Hapus data riwayat. Pastikan Trigger MySQL di databasemu sudah siap menangani pengembalian stok saat data dihapus.
+        $riwayat->delete();
+
+        return redirect()->route('riwayat-stok.index')->with('success', 'Riwayat stok berhasil dihapus! Stok utama otomatis disesuaikan.');
     }
 }
