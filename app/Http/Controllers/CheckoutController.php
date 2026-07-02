@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
-use App\Models\RiwayatStok;
 use App\Models\Voucher;
 use App\Models\MetodePengiriman;
 use Illuminate\Support\Facades\Auth;
@@ -71,20 +70,30 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang kosong.'], 400);
         }
 
-        // 1. Ambil data pengiriman
-        $metode = MetodePengiriman::first();
-        if (!$metode) {
-            return response()->json(['success' => false, 'message' => 'Data pengiriman belum diatur di database.'], 400);
+        // 1. Ambil data pengiriman secara dinamis berdasarkan input dropdown pembeli
+        $id_pengiriman = $request->input('id_pengiriman');
+        if (!$id_pengiriman) {
+            return response()->json(['success' => false, 'message' => 'Silakan pilih metode pengiriman terlebih dahulu.'], 400);
         }
 
-        // 2. Hitung Total
+        $metode = MetodePengiriman::find($id_pengiriman);
+        if (!$metode) {
+            return response()->json(['success' => false, 'message' => 'Metode pengiriman tidak valid.'], 400);
+        }
+
+        // Ambil nominal biaya dari kolom BIAYA murni yang sudah kita buat di database sebelumnya
+        $ongkir = $metode->BIAYA; 
+
+        // 2. Hitung Total Belanjaan
         $subtotal = 0;
         foreach ($cart as $item) {
             $subtotal += $item['harga'] * $item['jumlah'];
         }
         
         $potongan = session()->has('voucher') ? session('voucher')['potongan'] : 0;
-        $totalAkhir = max($subtotal - $potongan, 0);
+        
+        // Rumus Total Akhir yang benar: (Subtotal - Diskon Voucher) + Biaya Ongkir Terpilih
+        $totalAkhir = max($subtotal - $potongan, 0) + $ongkir;
 
         // 3. Proses Transaksi Database
         DB::beginTransaction();
@@ -92,12 +101,12 @@ class CheckoutController extends Controller
             $pesanan = Pesanan::create([
                 'ID_PESANAN'       => 'INV-' . time(),
                 'ID_USER'          => Auth::id(),
-                'ID_PENGIRIMAN'    => $metode->ID_PENGIRIMAN,
+                'ID_PENGIRIMAN'    => $metode->ID_PENGIRIMAN, // Menyimpan ID pengiriman pilihan user
                 'TANGGAL_PESAN'    => now(),
                 'TOTAL_BERAT_GRAM' => 1000,
                 'SUBTOTAL_PRODUK'  => $subtotal,
-                'BIAYA_PENGIRIMAN' => 15000,
-                'TOTAL_AKHIR'      => $totalAkhir,
+                'BIAYA_PENGIRIMAN' => $ongkir,      // Dinamis (0 jika ambil sendiri, 10rb jika COD, 15rb jika JNE)
+                'TOTAL_AKHIR'      => $totalAkhir,   // Total akhir yang sinkron dengan ongkir baru
                 'STATUS_PESANAN'   => 'Menunggu Pembayaran',
                 'RESI_PENGIRIMAN'  => null
             ]);
@@ -106,25 +115,16 @@ class CheckoutController extends Controller
                 DetailPesanan::create([
                     'ID_PESANAN'      => $pesanan->ID_PESANAN,
                     'ID_PRODUK'       => $id_produk,
+                    'HARGA_SAAT_BELI' => $item['harga'],
                     'JUMLAH_BELI'     => $item['jumlah'],
-                    'HARGA_SAAT_BELI' => $item['harga'], 
                     'SUBTOTAL'        => $item['harga'] * $item['jumlah']
-                ]);
-
-                RiwayatStok::create([
-                    'ID_PRODUK'       => $id_produk,
-                    'ID_USER'         => Auth::id(),
-                    'TIPE_PERGERAKAN' => 'keluar',
-                    'JUMLAH'          => $item['jumlah'],
-                    'TANGGAL'         => now(),
-                    'KETERANGAN'      => 'Order ID: ' . $pesanan->ID_PESANAN
                 ]);
             }
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Gagal database: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal memproses pesanan: ' . $e->getMessage()], 500);
         }
 
         // 4. Midtrans
@@ -136,25 +136,25 @@ class CheckoutController extends Controller
         try {
             $snapToken = Snap::getSnapToken([
                 'transaction_details' => [
-                    'order_id' => $pesanan->ID_PESANAN, 
+                    'order_id' => $pesanan->ID_PESANAN,
                     'gross_amount' => $totalAkhir
                 ],
                 'customer_details' => [
-                    'first_name' => Auth::user()->name ?? 'Guest', 
+                    'first_name' => Auth::user()->name ?? 'Guest',
                     'email' => Auth::user()->email ?? 'guest@example.com'
                 ]
             ]);
 
             session()->forget(['cart', 'voucher']);
-            
+
             return response()->json([
                 'success' => true,
-                'snapToken' => $snapToken,
-                'redirect_url' => route('pesanan.show', $pesanan->ID_PESANAN)
+                'snap_token' => $snapToken,
+                'order_id' => $pesanan->ID_PESANAN,
+                'redirect_url' => route('riwayat.detail', $pesanan->ID_PESANAN)
             ]);
-
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Midtrans Error: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal membuat token pembayaran: ' . $e->getMessage()], 500);
         }
     }
 }

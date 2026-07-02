@@ -10,6 +10,16 @@
                 <h4>Produk yang Dipesan</h4>
             </div>
             <div class="card-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="table-responsive">
                     <table class="table table-striped table-md">
                         <thead>
@@ -24,8 +34,8 @@
                             @foreach($pesanan->detail as $d)
                             <tr>
                                 <td>{{ $d->produk->NAMA_PRODUK }}</td>
-                                <td>Rp {{ number_format($d->HARGA_SATUAN, 0, ',', '.') }}</td>
-                                <td class="text-center">{{ $d->JUMLAH }}</td>
+                                <td>Rp {{ number_format($d->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
+                                <td class="text-center">{{ $d->JUMLAH_BELI }}</td>
                                 <td class="text-right">Rp {{ number_format($d->SUBTOTAL, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
@@ -37,6 +47,13 @@
                     <div class="col-md-6">
                         <h6>Alamat Pengiriman:</h6>
                         <p>{{ $pesanan->user->name }}<br>Alamat: (Data dari tabel pengiriman)</p>
+                        
+                        <h6 class="mt-3">Metode Pengiriman:</h6>
+                        <p>
+                            <span class="badge badge-info text-uppercase" style="font-size: 0.9rem; padding: 6px 12px;">
+                                <i class="fas fa-truck"></i> {{ $pesanan->pengiriman->NAMA_KURIR ?? 'Ambil Sendiri' }}
+                            </span>
+                        </p>
                     </div>
                     <div class="col-md-6 text-right">
                         <p><b>Subtotal Produk:</b> Rp {{ number_format($pesanan->SUBTOTAL_PRODUK, 0, ',', '.') }}</p>
@@ -54,11 +71,13 @@
             <div class="card-body text-center">
                 <p class="mb-3">Total Akhir yang Harus Dibayar: <strong class="text-primary" style="font-size: 1.2rem;">Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</strong></p>
                 
-                @if($pesanan->STATUS_PESANAN == 'Menunggu Pembayaran' || $pesanan->STATUS_PESANAN == 'Pending')
-                    <button id="pay-button" class="btn btn-success btn-lg w-100">
-                        <i class="fas fa-credit-card"></i> Bayar Sekarang via Midtrans
-                    </button>
-                @else
+                @if(Auth::check() && Auth::user()->role === 'Pembeli' && $pesanan->STATUS_PESANAN == 'Menunggu Pembayaran')
+                    <div class="alert alert-warning mt-4">
+                        <h5>Pembayaran Kain Sasirangan (Midtrans)</h5>
+                        <p>Total Akhir yang Harus Dibayar: <strong>Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</strong></p>
+                        <button id="pay-button" class="btn btn-success btn-lg">Bayar Sekarang</button>
+                    </div>
+                @elseif($pesanan->STATUS_PESANAN != 'Menunggu Pembayaran')
                     <div class="alert alert-info mb-0">
                         Status Pesanan saat ini: <strong>{{ $pesanan->STATUS_PESANAN }}</strong>
                     </div>
@@ -86,9 +105,24 @@
                         </select>
                     </div>
 
+                    @php
+                        $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR ?? '');
+                        // Logika pengecekan apakah metode termasuk kurir ekspedisi
+                        $isEkspedisi = ($pesanan->ID_PENGIRIMAN == 3) || in_array($namaKurir, ['JNE', 'J&T', 'KURIR / JNE', 'EKSPEDISI']);
+                    @endphp
+
                     <div class="form-group">
                         <label>Input No. Resi</label>
-                        <input type="text" class="form-control" name="resi" value="{{ $pesanan->RESI_PENGIRIMAN }}" placeholder="Contoh: JNE12345678">
+                        {{-- Jika ekspedisi, admin wajib input resi. Jika instan/ambil sendiri, otomatis diisi TANPA-RESI dan di-lock (readonly) --}}
+                        <input type="text" 
+                               class="form-control" 
+                               name="resi" 
+                               value="{{ $isEkspedisi ? $pesanan->RESI_PENGIRIMAN : 'TANPA-RESI' }}" 
+                               {{ $isEkspedisi ? '' : 'readonly' }}
+                               placeholder="{{ $isEkspedisi ? 'Contoh: JNE12345678' : 'Otomatis Tanpa Resi untuk Kurir Instan' }}">
+                        @if(!$isEkspedisi)
+                            <small class="text-muted d-block mt-1">*Metode non-ekspedisi tidak memerlukan input resi.</small>
+                        @endif
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block btn-lg">Update Pesanan</button>
@@ -106,31 +140,23 @@
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
         const payButton = document.getElementById('pay-button');
-        
-        // Ambil Snap Token dari Session (saat baru saja redirect dari keranjang)
         const snapTokenFromSession = "{{ session('snapToken') }}";
-        
-        // Ambil Snap Token dari Database (jika ada, berguna saat halaman direfresh)
         const snapTokenFromDatabase = "{{ $snapToken ?? ($pesanan->pembayaran->SNAP_TOKEN ?? '') }}";
         
-        // Fungsi utama untuk memanggil pop-up Midtrans
         function triggerMidtransSnap(token) {
             if (!token) return;
 
             window.snap.pay(token, {
                 onSuccess: function(result) {
                     alert("Pembayaran Berhasil! Pesanan segera diproses.");
-                    console.log(result);
                     window.location.href = "{{ route('pesanan.index') }}"; 
                 },
                 onPending: function(result) {
                     alert("Menunggu Pembayaran. Harap segera selesaikan transaksi.");
-                    console.log(result);
                     window.location.reload(); 
                 },
                 onError: function(result) {
                     alert("Pembayaran Gagal! Silakan coba lagi.");
-                    console.log(result);
                 },
                 onClose: function() {
                     alert('Halaman pembayaran ditutup sebelum transaksi diselesaikan.');
@@ -138,16 +164,13 @@
             });
         }
 
-        // Jalankan otomatis jika token terdeteksi dari session flash (baru checkout)
         if (snapTokenFromSession) {
             triggerMidtransSnap(snapTokenFromSession);
         }
 
-        // Eksekusi manual jika pembeli menekan tombol bayar
         if (payButton) {
             payButton.addEventListener('click', function (e) {
                 e.preventDefault();
-                // Prioritaskan token dari database jika halaman direfresh, jika tidak ada gunakan session
                 const tokenAktif = snapTokenFromDatabase || snapTokenFromSession;
                 
                 if (tokenAktif) {

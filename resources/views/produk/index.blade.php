@@ -47,7 +47,17 @@
                         <td>{{ $item->NAMA_PRODUK }}</td>
                         <td>{{ $item->kategori ? $item->kategori->NAMA_KATEGORI : 'Tidak ada' }}</td>
                         
-                        <td class="text-success font-weight-bold">Rp {{ number_format($item->HARGA, 0, ',', '.') }}</td>
+                        <td>
+                            @if($item->DISKON_PERSEN > 0)
+                                <span class="badge badge-danger mb-1">Diskon {{ $item->DISKON_PERSEN }}%</span><br>
+                                <span class="text-muted" style="text-decoration: line-through; font-size: 12px;">
+                                    Rp {{ number_format($item->HARGA, 0, ',', '.') }}
+                                </span><br>
+                                <strong class="text-success">Rp {{ number_format($item->harga_akhir, 0, ',', '.') }}</strong>
+                            @else
+                                <strong>Rp {{ number_format($item->HARGA, 0, ',', '.') }}</strong>
+                            @endif
+                        </td>
                         <td>{{ $item->STOK }}</td>
                         
                         <td>

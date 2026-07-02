@@ -31,71 +31,62 @@ class PesananController extends Controller
     }
 
     // 2. Menampilkan Detail Pesanan (Invoice/Struk)
-    public function show($id)
+   public function show($id)
     {
-        // Ambil data pesanan beserta relasi user dan detail barang yang dibeli
+        // Memuat pesanan utuh dari database
         $pesanan = Pesanan::with(['user', 'detail.produk'])->findOrFail($id);
 
-        // Keamanan tambahan: Cegah pembeli mengintip pesanan orang lain lewat URL
         if (Auth::user()->role == 'Pembeli' && $pesanan->ID_USER != Auth::id()) {
-            abort(403, 'Akses Ditolak! Ini bukan pesanan Anda.');
+            abort(403);
         }
 
-        return view('pesanan.show', compact('pesanan'));
+        return view('pesanan.detail_pesanan', compact('pesanan'));
     }
 
     // 3. Update Status Pesanan - Memproses status dari Admin/Pegawai dan Pembeli
     public function updateStatus(Request $request, $id)
     {
-        // 1. Cari pesanan berdasarkan ID, dan load data kurirnya secara otomatis (Eager Loading)
         $pesanan = Pesanan::with('pengiriman')->findOrFail($id);
+        $statusBaru = $request->input('status', $request->input('status_pesanan'));
+        $resi = $request->input('resi', $request->input('resi_pengiriman'));
 
-        // ====================================================================
-        // AKSI ADMIN/PEGAWAI: Mengirim Pesanan (Ubah status jadi 'Dikirim')
-        // ====================================================================
-        if ($request->status_pesanan == 'Dikirim') {
-            
-            // Ambil nama kurir dari database dan ubah ke huruf besar semua agar validasi mudah
-            $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR);
-            
-            // Daftar nama kurir instan yang TIDAK WAJIB memiliki nomor resi
-            $kurirInstan = ['AMBIL DI TOKO', 'GOJEK', 'GRAB', 'GOJEK/GRAB'];
+        if ($statusBaru == 'Diproses' || $statusBaru == 'Dibatalkan') {
+            $pesanan->update([
+                'STATUS_PESANAN' => $statusBaru,
+            ]);
 
-            // Cek apakah kurir yang dipakai pembeli ada di dalam daftar kurir instan di atas?
-            if (!in_array($namaKurir, $kurirInstan)) {
-                
-                // JIKA KURIR EKSPEDISI (JNE, J&T, POS, dll): Resi WAJIB diisi!
+            return redirect()->back()->with('success', 'Status pesanan berhasil diubah menjadi ' . $statusBaru);
+        }
+
+        if ($statusBaru == 'Dikirim') {
+            $namaKurir = strtoupper($pesanan->pengiriman->NAMA_KURIR ?? '');
+            
+            // Cek apakah metode pengiriman termasuk ekspedisi (JNE/J&T/dll) atau instan/ambil sendiri
+            $isEkspedisi = ($pesanan->ID_PENGIRIMAN == 3) || in_array($namaKurir, ['JNE', 'J&T', 'KURIR / JNE', 'EKSPEDISI']);
+
+            if ($isEkspedisi) {
+                // Jika ekspedisi, wajib mengisi nomor resi asli
                 $request->validate([
-                    'resi_pengiriman' => 'required|string|max:50',
+                    'resi' => 'required|string|max:50',
                 ], [
-                    'resi_pengiriman.required' => 'Nomor Resi wajib diisi untuk kurir ekspedisi!'
+                    'resi.required' => 'Nomor Resi wajib diisi untuk kurir ekspedisi!'
                 ]);
-                
-                $nomorResi = $request->resi_pengiriman;
-                
+
+                $nomorResi = $resi;
             } else {
-                
-                // JIKA AMBIL DI TOKO atau GOJEK: Abaikan validasi resi.
-                // Jika Admin tidak mengisi apa-apa, otomatis diisi tulisan 'TANPA-RESI'.
-                // Tapi jika Admin mengisi (misal: isi Plat Nomor Driver), maka simpan isian tersebut.
-                $nomorResi = $request->resi_pengiriman ?? 'TANPA-RESI'; 
-                
+                // Jika instan (Gojek/Ambil Sendiri/COD), otomatis diset TANPA-RESI oleh sistem
+                $nomorResi = 'TANPA-RESI';
             }
 
-            // Eksekusi Update ke Database
             $pesanan->update([
                 'STATUS_PESANAN' => 'Dikirim',
                 'RESI_PENGIRIMAN' => $nomorResi
             ]);
 
-            return redirect()->back()->with('success', 'Pesanan berhasil dikirim. (Metode: ' . $pesanan->pengiriman->NAMA_KURIR . ')');
+            return redirect()->back()->with('success', 'Pesanan berhasil dikirim. (Metode: ' . ($pesanan->pengiriman->NAMA_KURIR ?? 'Instan') . ')');
         }
 
-        // ====================================================================
-        // AKSI PEMBELI: Menyelesaikan Pesanan (Ubah status jadi 'Selesai')
-        // ====================================================================
-        if ($request->status_pesanan == 'Selesai') {
-            
+        if ($statusBaru == 'Selesai') {
             $pesanan->update([
                 'STATUS_PESANAN' => 'Selesai'
             ]);
@@ -103,29 +94,19 @@ class PesananController extends Controller
             return redirect()->back()->with('success', 'Terima kasih! Pesanan telah selesai diterima.');
         }
 
-        // Jika status yang dikirim form tidak valid
         return redirect()->back()->with('error', 'Status pesanan tidak valid.');
     }
 
-    // 4. Cetak Struk/Invoice (Download PDF)
     public function cetakInvoice($id)
     {
-        // Ambil data pesanan
-        $pesanan = Pesanan::with(['user', 'detail.produk'])->findOrFail($id);
+        // Memuat data pesanan utuh untuk di-convert ke PDF
+        $pesanan = Pesanan::with(['user', 'detail.produk'])->where('ID_PESANAN', $id)->firstOrFail();
 
-        // Pastikan pembeli hanya bisa cetak pesanannya sendiri
         if (Auth::user()->role == 'Pembeli' && $pesanan->ID_USER != Auth::id()) {
-            abort(403, 'Akses Ditolak! Anda tidak bisa mencetak pesanan orang lain.');
+            abort(403);
         }
 
-        // Load view HTML dan ubah jadi PDF
         $pdf = Pdf::loadView('pesanan.invoice', compact('pesanan'));
-        
-        // Return download langsung ke perangkat pembeli
-        return $pdf->download('Invoice-Sasirangan-' . $pesanan->ID_PESANAN . '.pdf');
-        
-        // (Opsional) Kalau mau cuma tampil di tab browser dulu baru diprint, 
-        // ganti kata download jadi stream: return $pdf->stream(...);
+        return $pdf->stream('invoice-' . $pesanan->ID_PESANAN . '.pdf');
     }
-    
 }

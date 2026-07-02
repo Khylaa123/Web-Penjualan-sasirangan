@@ -56,22 +56,31 @@
             </div>
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label>Berat (Gram)</label>
                         <input type="number" name="BERAT_GRAM" class="form-control" required value="{{ $produk->BERAT_GRAM }}">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label>Harga (Rp)</label>
                         <input type="number" name="HARGA" class="form-control" required value="{{ number_format($produk->HARGA, 0, '', '') }}">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Diskon (%)</label>
+                        <input type="number" name="DISKON_PERSEN" class="form-control" min="0" max="100" value="{{ $produk->DISKON_PERSEN ?? 0 }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="form-group">
                         <label>Stok Tersedia</label>
-                        <input type="number" name="STOK" class="form-control" required value="{{ $produk->STOK }}">
+                        <input type="number" name="STOK" class="form-control" value="{{ $produk->STOK }}" readonly style="background-color: #e9ecef; cursor: not-allowed;">
+                        <small class="text-danger mt-1 d-block" style="line-height: 1.2;">
+                            <i class="fas fa-lock"></i> Stok tidak dapat diedit langsung untuk mencegah kecurangan.
+                        </small>
                     </div>
                 </div>
             </div>

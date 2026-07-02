@@ -10,15 +10,21 @@ class DetailPesanan extends Model
     protected $primaryKey = 'ID_DETAIL';
     public $timestamps = false;
 
-   // PASTIKAN SEMUA KOLOM INI ADA DI DALAM $fillable
     protected $fillable = [
-        'ID_PESANAN', 
-        'ID_PRODUK', 
-        'HARGA_SAAT_BELI', // Pastikan namanya persis dengan yang ada di database
-        'JUMLAH_BELI', // <--- UBAH DI SINI
+        'ID_PESANAN',
+        'ID_PRODUK',
+        'HARGA_SAAT_BELI',
+        'JUMLAH_BELI',
         'SUBTOTAL'
-];
-    public function produk() {
+    ];
+
+    public function pesanan()
+    {
+        return $this->belongsTo(Pesanan::class, 'ID_PESANAN', 'ID_PESANAN');
+    }
+
+    public function produk()
+    {
         return $this->belongsTo(Produk::class, 'ID_PRODUK', 'ID_PRODUK');
     }
 }

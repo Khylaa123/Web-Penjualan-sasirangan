@@ -39,4 +39,10 @@ class Pesanan extends Model
     public function pengiriman() {
         return $this->belongsTo(MetodePengiriman::class, 'ID_PENGIRIMAN', 'ID_PENGIRIMAN');
     }
+
+    // Relasi ke tabel pembayaran (1 Pesanan memiliki 1 riwayat Pembayaran di Midtrans)
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class, 'ID_PESANAN', 'ID_PESANAN');
+    }
 }

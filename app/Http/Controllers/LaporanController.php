@@ -2,65 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Pesanan;
+use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
-    // Menampilkan halaman filter laporan
+    // 1. Menampilkan Halaman Utama Laporan + Filter Tanggal
     public function index(Request $request)
     {
-        $tgl_mulai = $request->tgl_mulai;
-        $tgl_sampai = $request->tgl_sampai;
+        $tgl_mulai = $request->input('tgl_mulai');
+        $tgl_sampai = $request->input('tgl_sampai');
 
-        // Mulai query pencarian (hanya pesanan yang sudah sukses/selesai/dikirim)
-        $query = Pesanan::with('user')->whereIn('STATUS_PESANAN', ['Dikirim', 'Selesai']);
+        $query = Pesanan::with(['user', 'pembayaran'])
+            ->whereHas('pembayaran', function ($q) {
+                $q->where('STATUS_BAYAR', 'settlement');
+            });
 
-        // Jika user memilih tanggal filter
-        if ($tgl_mulai && $tgl_sampai) {
+        if (!empty($tgl_mulai) && !empty($tgl_sampai)) {
             $query->whereBetween('TANGGAL_PESAN', [$tgl_mulai . ' 00:00:00', $tgl_sampai . ' 23:59:59']);
         }
 
-        // Biarkan database MySQL yang menghitung totalnya (Jauh lebih cepat dan hemat RAM)
-        $total_pendapatan = $query->sum('TOTAL_AKHIR'); 
-
-        // Setelah total didapat, baru tarik datanya untuk ditampilkan ke tabel
         $pesanan = $query->orderBy('TANGGAL_PESAN', 'desc')->get();
+        $total_pendapatan = $pesanan->sum('TOTAL_AKHIR');
 
-        return view('laporan.index', compact('pesanan', 'tgl_mulai', 'tgl_sampai', 'total_pendapatan'));
+        return view('laporan.index', compact('pesanan', 'total_pendapatan', 'tgl_mulai', 'tgl_sampai'));
     }
 
-    // Menampilkan halaman khusus cetak (tanpa sidebar dsb)
+    // 2. Fungsi untuk Menangani Cetak Laporan
     public function cetak(Request $request)
     {
         $tgl_mulai = $request->tgl_mulai;
         $tgl_sampai = $request->tgl_sampai;
 
-        $query = Pesanan::with('user')->whereIn('STATUS_PESANAN', ['Dikirim', 'Selesai']);
+        $query = Pesanan::with(['user', 'pembayaran'])
+            ->whereHas('pembayaran', function($q) {
+                $q->where('STATUS_BAYAR', 'settlement');
+            });
 
         if ($tgl_mulai && $tgl_sampai) {
             $query->whereBetween('TANGGAL_PESAN', [$tgl_mulai . ' 00:00:00', $tgl_sampai . ' 23:59:59']);
         }
 
-        // Biarkan database MySQL yang menghitung totalnya (Jauh lebih cepat dan hemat RAM)
-        $total_pendapatan = $query->sum('TOTAL_AKHIR'); 
+        $pesanan = $query->orderBy('TANGGAL_PESAN', 'desc')->get();
+        $total_pendapatan = $pesanan->sum('TOTAL_AKHIR');
 
-        // Setelah total didapat, baru tarik datanya untuk ditampilkan ke tabel
-        $pesanan = $query->orderBy('TANGGAL_PESAN', 'asc')->get();
-
-        return view('laporan.cetak', compact('pesanan', 'tgl_mulai', 'tgl_sampai', 'total_pendapatan'));
-    }
-    public function penjualan()
-    {
-        // Mengambil pesanan yang sukses pembayarannya dan status pesanannya sudah Selesai/Dikirim
-        $laporanPenjualan = Pesanan::with(['user', 'pembayaran'])
-            ->whereHas('pembayaran', function($query) {
-                $query->where('STATUS_BAYAR', 'settlement');
-            })
-            ->whereIn('STATUS_PESANAN', ['Dikirim', 'Selesai'])
-            ->orderBy('TANGGAL_PESAN', 'desc')
-            ->get();
-
-        return view('admin.laporan.penjualan', compact('laporanPenjualan'));
+        // PERBAIKAN: Hapus "admin." karena foldermu langsung bernama "laporan"
+        return view('laporan.cetak', compact('pesanan', 'total_pendapatan', 'tgl_mulai', 'tgl_sampai'));
     }
 }

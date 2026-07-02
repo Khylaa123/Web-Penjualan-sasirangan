@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,14 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // INI YANG KITA TAMBAHKAN: Mendaftarkan nama panggilan 'role' untuk satpam kita
+        // Daftarkan middleware dengan alias 'role'
         $middleware->alias([
-            'role' => \App\Http\Middleware\CekRole::class,
-        ]);
-        
-        // TAMBAHKAN BLOK INI: Pengecualian untuk Midtrans
-        $middleware->validateCsrfTokens(except: [
-            'midtrans-callback',
+            'role' => CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

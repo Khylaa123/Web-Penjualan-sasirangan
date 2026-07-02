@@ -11,50 +11,54 @@ class UlasanController extends Controller
 {
     public function store(Request $request)
     {
-        // 1. Validasi inputan dari form Frontend
+        // 1. Validasi input yang dikirim dari Modal
         $request->validate([
-            'id_produk' => 'required',
-            'rating'    => 'required|integer|min:1|max:5',
-            'komentar'  => 'required|string|max:500'
+            'ID_PESANAN' => 'required',
+            'RATING'     => 'required|integer|min:1|max:5',
+            'KOMENTAR'   => 'required|string|max:500'
         ]);
 
         $id_user = Auth::id();
-        $id_produk = $request->id_produk;
+        $id_pesanan = $request->ID_PESANAN;
 
-        // 2. LOGIKA INTI: Cek apakah user pernah beli produk ini DAN statusnya 'Selesai'
-        // Kita menggunakan whereHas untuk mengecek ke dalam tabel detail_pesanan
-        $pernahBeli = Pesanan::where('ID_USER', $id_user)
-            ->where('STATUS_PESANAN', 'Selesai')
-            ->whereHas('detail', function ($query) use ($id_produk) {
-                $query->where('ID_PRODUK', $id_produk);
-            })->exists();
-
-        // Jika tidak pernah beli atau belum selesai, tolak!
-        if (!$pernahBeli) {
-            return redirect()->back()->with('error', 'Maaf, Anda hanya bisa memberikan ulasan pada produk yang telah dibeli dan pesanannya telah selesai.');
-        }
-
-        // 3. (Opsional) Cek apakah user sudah pernah mengulas produk ini sebelumnya
-        $sudahUlas = UlasanProduk::where('ID_USER', $id_user)
-            ->where('ID_PRODUK', $id_produk)
+        // 2. Cari data pesanan dan ambil 'detail'-nya
+        $pesanan = Pesanan::with('detail')
+            ->where('ID_PESANAN', $id_pesanan)
+            ->where('ID_USER', $id_user) 
             ->first();
 
+        // 3. Validasi Keamanan (Harus ada pesanan dan status Selesai)
+        if (!$pesanan || $pesanan->STATUS_PESANAN !== 'Selesai') {
+            return redirect()->back()->with('error', 'Maaf, Anda hanya bisa memberikan ulasan pada pesanan yang telah selesai.');
+        }
+
+        // 4. Ambil ID_DETAIL dari pesanan tersebut
+        $detailPesanan = $pesanan->detail->first();
+        if (!$detailPesanan) {
+            return redirect()->back()->with('error', 'Data produk pada pesanan ini tidak ditemukan.');
+        }
+
+        // INI KUNCI UTAMANYA: Kita ambil ID_DETAIL
+        $id_detail = $detailPesanan->ID_DETAIL;
+
+        // 5. Cek apakah ID_DETAIL ini sudah pernah diulas sebelumnya
+        $sudahUlas = UlasanProduk::where('ID_DETAIL', $id_detail)->first();
+
         if ($sudahUlas) {
-            // Jika sudah ada, kita update saja ulasan lamanya
+            // Jika sudah ada, Update ulasan lama
             $sudahUlas->update([
-                'RATING' => $request->rating,
-                'KOMENTAR' => $request->komentar,
+                'RATING'         => $request->RATING,
+                'KOMENTAR'       => $request->KOMENTAR,
                 'TANGGAL_ULASAN' => now()
             ]);
             return redirect()->back()->with('success', 'Ulasan Anda berhasil diperbarui!');
         }
 
-        // 4. Jika lolos semua cek, simpan ulasan baru
+        // 6. Simpan ulasan baru dengan mencantumkan ID_DETAIL sesuai kolom databasemu
         UlasanProduk::create([
-            'ID_PRODUK'      => $id_produk,
-            'ID_USER'        => $id_user,
-            'RATING'         => $request->rating,
-            'KOMENTAR'       => $request->komentar,
+            'ID_DETAIL'      => $id_detail,
+            'RATING'         => $request->RATING,
+            'KOMENTAR'       => $request->KOMENTAR,
             'TANGGAL_ULASAN' => now()
         ]);
 

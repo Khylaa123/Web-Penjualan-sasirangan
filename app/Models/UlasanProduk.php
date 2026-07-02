@@ -8,17 +8,22 @@ class UlasanProduk extends Model
 {
     // Sesuaikan nama tabel dengan yang ada di database kamu
     protected $table = 'ulasan_produk'; 
-    protected $primaryKey = 'ID_ULASAN';
-    public $timestamps = false;
+  protected $primaryKey = 'ID_ULASAN';
+public $timestamps = false; // Jika kamu tidak pakai created_at & updated_at
 
     // Sesuaikan kolom ini dengan struktur tabel aslimu
-    protected $fillable = [
-        'ID_PRODUK', 
-        'ID_USER', 
-        'RATING', 
-        'KOMENTAR', 
-        'TANGGAL_ULASAN'
-    ];
+   protected $fillable = [
+    'ID_DETAIL',
+    'RATING',
+    'KOMENTAR',
+    'TANGGAL_ULASAN'
+];
+
+    // Relasi ke Detail Pesanan (Ulasan ini milik barang yang mana di pesanan)
+    public function detailPesanan()
+    {
+        return $this->belongsTo(DetailPesanan::class, 'ID_DETAIL', 'ID_DETAIL');
+    }
 
     // Relasi ke User (Siapa yang mengulas)
     public function user()

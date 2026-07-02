@@ -76,18 +76,6 @@ class ProdukController extends Controller
             ->with('success', 'Produk masuk ke inventory (tanpa drama edit).');
     }
 
-    // 4. Edit DIMATIKAN TOTAL
-    public function edit($id)
-    {
-        abort(404, 'Edit dimatikan. Data inventory tidak boleh diubah.');
-    }
-
-    // 5. Update DIMATIKAN TOTAL
-    public function update(Request $request, $id)
-    {
-        abort(404, 'Update dimatikan. Sistem ini bukan marketplace improvisasi.');
-    }
-
     // 6. Hapus produk (admin only biasanya)
     public function destroy($id)
     {
@@ -101,5 +89,63 @@ class ProdukController extends Controller
 
         return redirect()->route('inventory.index')
             ->with('success', 'Produk berhasil dihapus dari inventory.');
+    }
+
+    // Menampilkan form edit produk
+    public function edit($id)
+    {
+        $produk = Produk::findOrFail($id);
+        
+        // Ganti KategoriProduk menjadi Kategori (Sesuai dengan nama file Model Anda)
+        $kategori = \App\Models\Kategori::all(); 
+
+        return view('produk.edit', compact('produk', 'kategori'));
+    }
+
+    // Memproses update data ke database
+    public function update(Request $request, $id)
+    {
+        // Validasi sekarang wajibkan Harga dan Stok
+        $request->validate([
+            'ID_KATEGORI'  => 'required',
+            'NAMA_PRODUK'  => 'required|string|max:150',
+            'DESKRIPSI'    => 'required|string',
+            'BERAT_GRAM'   => 'required|integer|min:0',
+            'HARGA'        => 'required|numeric|min:0',
+            'STOK'         => 'required|integer|min:0',
+            'STATUS_AKTIF' => 'required',
+            'GAMBAR_UTAMA' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        $produk = Produk::findOrFail($id);
+        $nama_foto = $produk->GAMBAR_UTAMA;
+
+        // Jika Admin mengupload gambar baru
+        if ($request->hasFile('GAMBAR_UTAMA')) {
+            if ($nama_foto && file_exists(public_path('uploads/produk/' . $nama_foto))) {
+                unlink(public_path('uploads/produk/' . $nama_foto));
+            }
+            $file = $request->file('GAMBAR_UTAMA');
+            $nama_foto = time() . "_" . $file->getClientOriginalName();
+            $file->move(public_path('uploads/produk'), $nama_foto);
+        }
+
+        // Update data ke database (Kode Produk tidak diubah karena permanen)
+        $produk->update([
+            'ID_KATEGORI'  => $request->ID_KATEGORI,
+            'NAMA_PRODUK'  => $request->NAMA_PRODUK,
+            'DESKRIPSI'    => $request->DESKRIPSI,
+            'BERAT_GRAM'   => $request->BERAT_GRAM,
+            'HARGA'        => $request->HARGA,
+            'STOK'         => $request->STOK,
+            'STATUS_AKTIF' => $request->STATUS_AKTIF,
+            'GAMBAR_UTAMA' => $nama_foto
+        ]);
+
+        // Jika kamu pakai cara mapping manual, pastikan baris ini ada:
+        $produk->DISKON_PERSEN = $request->DISKON_PERSEN ?? 0;
+        $produk->save();
+
+        return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
     }
 }
