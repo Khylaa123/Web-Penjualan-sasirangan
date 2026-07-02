@@ -5,34 +5,39 @@
 @section('content')
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800&family=Karla:wght@400;500;600;700&display=swap');
+
     :root {
-        --primary:   #7c3aed;
-        --primary-d: #6d28d9;
-        --primary-l: #ede9fe;
-        --accent:    #f59e0b;
-        --dark:      #1e1b2e;
-        --text:      #374151;
-        --text-soft: #6b7280;
-        --border:    #e5e7eb;
-        --bg-soft:   #fafafa;
+        --primary:      #A97524;
+        --primary-d:    #8C5D1B;
+        --primary-l:    #F5E8CC;
+        --accent:       #D9A441;
+        --accent-bright:#E6C077;
+        --dark:         #2B2118;
+        --text:         #4A3B2C;
+        --text-soft:    #8A7860;
+        --border:       #EADCC0;
+        --bg-soft:      #FBF3E3;
         --radius:    14px;
         --radius-sm: 8px;
-        --shadow:    0 2px 16px rgba(0,0,0,0.07);
-        --shadow-md: 0 4px 32px rgba(0,0,0,0.10);
+        --shadow:    0 2px 16px rgba(43,33,24,0.07);
+        --shadow-md: 0 4px 32px rgba(43,33,24,0.10);
     }
     * { box-sizing: border-box; }
-    body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
+    body { font-family: 'Karla', 'Inter', system-ui, sans-serif; color: var(--text); }
+
+    .page-header-custom h1 { font-family: 'Fraunces', serif; }
 
     /* PAGE HEADER */
     .page-header-custom {
-        background: linear-gradient(135deg, #1e1b2e 0%, #2d1b6e 50%, #4c1d95 100%);
+        background: linear-gradient(135deg, #2B2118 0%, #4A3323 55%, #7A5220 100%);
         padding: 3.5rem 0 2.5rem;
         text-align: center;
     }
     .page-header-custom h1 {
         color: #fff;
         font-size: clamp(1.6rem, 3vw, 2.2rem);
-        font-weight: 800;
+        font-weight: 700;
         margin-bottom: 0.75rem;
         letter-spacing: -0.3px;
     }
@@ -44,7 +49,7 @@
     .breadcrumb-custom li { color: rgba(255,255,255,0.55); }
     .breadcrumb-custom li a { color: rgba(255,255,255,0.75); text-decoration: none; transition: color 0.15s; }
     .breadcrumb-custom li a:hover { color: #fff; }
-    .breadcrumb-custom li.active { color: #fbbf24; font-weight: 600; }
+    .breadcrumb-custom li.active { color: var(--accent-bright); font-weight: 600; }
     .breadcrumb-sep { color: rgba(255,255,255,0.3); }
 
     /* LAYOUT */
@@ -73,7 +78,7 @@
     }
     .sb-search:focus-within {
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(124,58,237,0.1); background: #fff;
+        box-shadow: 0 0 0 3px rgba(169,117,36,0.12); background: #fff;
     }
     .sb-search svg { color: #9ca3af; flex-shrink: 0; }
     .sb-search input {
@@ -156,7 +161,7 @@
     }
     .prod-disc-tag {
         position: absolute; top: 10px; left: 10px;
-        background: #ef4444; color: #fff;
+        background: #B3452C; color: #fff;
         font-size: 0.69rem; font-weight: 700;
         padding: 3px 9px; border-radius: 99px;
     }
@@ -172,7 +177,7 @@
         transition: color 0.13s;
     }
     .prod-name:hover { color: var(--primary); }
-    .prod-stars { font-size: 0.77rem; color: #f59e0b; margin-bottom: 0.35rem; letter-spacing: 1px; }
+    .prod-stars { font-size: 0.77rem; color: var(--accent); margin-bottom: 0.35rem; letter-spacing: 1px; }
     .prod-stars span { color: var(--text-soft); margin-left: 3px; letter-spacing: 0; }
     .prod-desc {
         font-size: 0.79rem; color: var(--text-soft); line-height: 1.55;
@@ -182,7 +187,7 @@
     }
     .prod-price-orig { font-size: 0.75rem; color: #9ca3af; text-decoration: line-through; margin-bottom: 1px; }
     .prod-price { font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 0.8rem; }
-    .prod-price.disc { color: #ef4444; }
+    .prod-price.disc { color: #B3452C; }
     .btn-detail {
         display: inline-flex; align-items: center; justify-content: center;
         gap: 7px; background: var(--primary); color: #fff; border: none;
@@ -199,7 +204,7 @@
     /* Search banner */
     .search-banner {
         display: flex; align-items: center; gap: 9px;
-        background: var(--primary-l); border: 1px solid #c4b5fd;
+        background: var(--primary-l); border: 1px solid #E3C989;
         border-radius: var(--radius-sm); padding: 9px 13px;
         margin-bottom: 1.1rem; font-size: 0.84rem; color: var(--primary);
     }
@@ -379,7 +384,7 @@
                 <div class="col-12">
                     <div class="empty-wrap">
                         <div class="empty-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#A97524" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
                         </div>

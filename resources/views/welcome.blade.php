@@ -6,36 +6,43 @@
 
 <style>
     /* ─── RESET & BASE ─────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500&family=Karla:wght@400;500;600;700&display=swap');
+
     :root {
-        --primary:   #7c3aed;
-        --primary-d: #6d28d9;
-        --primary-l: #ede9fe;
-        --accent:    #f59e0b;
-        --accent-d:  #d97706;
-        --dark:      #1e1b2e;
-        --text:      #374151;
-        --text-soft: #6b7280;
-        --border:    #e5e7eb;
-        --bg-soft:   #fafafa;
+        --primary:      #A97524;
+        --primary-d:    #8C5D1B;
+        --primary-l:    #F5E8CC;
+        --accent:       #D9A441;
+        --accent-d:     #A97524;
+        --accent-bright:#E6C077;
+        --dark:         #2B2118;
+        --text:         #4A3B2C;
+        --text-soft:    #8A7860;
+        --border:       #EADCC0;
+        --bg-soft:      #FBF3E3;
         --radius:    14px;
         --radius-sm: 8px;
-        --shadow:    0 2px 16px rgba(0,0,0,0.07);
-        --shadow-md: 0 4px 32px rgba(0,0,0,0.10);
+        --shadow:    0 2px 16px rgba(43,33,24,0.07);
+        --shadow-md: 0 4px 32px rgba(43,33,24,0.10);
     }
 
     * { box-sizing: border-box; }
 
     body {
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: 'Karla', 'Inter', system-ui, sans-serif;
         color: var(--text);
         background: #fff;
+    }
+
+    .hero-title, .section-heading, .promo-banner h2 {
+        font-family: 'Fraunces', serif;
     }
 
     img { display: block; }
 
     /* ─── HERO ──────────────────────────────────────────── */
     .hero-section {
-        background: linear-gradient(135deg, #1e1b2e 0%, #2d1b6e 50%, #4c1d95 100%);
+        background: linear-gradient(135deg, #2B2118 0%, #4A3323 55%, #7A5220 100%);
         padding: 5rem 0 4rem;
         overflow: hidden;
         position: relative;
@@ -45,15 +52,16 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='74' viewBox='0 0 64 74'%3E%3Cpath d='M32 0 L64 18.5 L64 55.5 L32 74 L0 55.5 L0 18.5 Z' fill='none' stroke='%23ffffff' stroke-opacity='0.045' stroke-width='1'/%3E%3C/svg%3E");
+        background-size: 64px 74px;
     }
 
     .hero-eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(245,158,11,0.18);
-        color: #fbbf24;
+        background: rgba(217,164,65,0.2);
+        color: var(--accent-bright);
         font-size: 0.78rem;
         font-weight: 700;
         letter-spacing: 1.2px;
@@ -61,20 +69,20 @@
         padding: 5px 14px;
         border-radius: 99px;
         margin-bottom: 1.25rem;
-        border: 1px solid rgba(245,158,11,0.3);
+        border: 1px solid rgba(217,164,65,0.35);
     }
 
     .hero-title {
         font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 800;
-        color: #fff;
+        font-weight: 700;
+        color: #fff !important;
         line-height: 1.18;
         margin-bottom: 1.5rem;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
     }
 
     .hero-title span {
-        color: #fbbf24;
+        color: #fff !important;
     }
 
     .hero-search {
@@ -135,7 +143,7 @@
         font-size: 0.82rem;
     }
 
-    .hero-badge svg { color: #fbbf24; flex-shrink: 0; }
+    .hero-badge svg { color: var(--accent-bright); flex-shrink: 0; }
 
     /* Carousel */
     .hero-carousel-wrap {
@@ -313,7 +321,7 @@
         position: absolute;
         top: 12px;
         right: 12px;
-        background: #ef4444;
+        background: #B3452C;
         color: #fff;
         font-size: 0.72rem;
         font-weight: 700;
@@ -366,7 +374,7 @@
         margin-bottom: 0.9rem;
     }
 
-    .prod-price.discounted { color: #ef4444; }
+    .prod-price.discounted { color: #B3452C; }
 
     .prod-actions {
         display: flex;
@@ -422,7 +430,7 @@
 
     /* ─── PROMO BANNER ───────────────────────────────────── */
     .promo-banner {
-        background: linear-gradient(135deg, #1e1b2e 0%, #4c1d95 100%);
+        background: linear-gradient(135deg, #2B2118 0%, #6B4A22 100%);
         border-radius: 20px;
         padding: 3.5rem;
         position: relative;
@@ -434,7 +442,7 @@
         position: absolute;
         right: -60px; top: -60px;
         width: 300px; height: 300px;
-        background: rgba(124,58,237,0.25);
+        background: rgba(217,164,65,0.22);
         border-radius: 50%;
     }
 
@@ -443,12 +451,12 @@
         position: absolute;
         right: 80px; bottom: -80px;
         width: 200px; height: 200px;
-        background: rgba(245,158,11,0.15);
+        background: rgba(217,164,65,0.15);
         border-radius: 50%;
     }
 
     .promo-banner h2 {
-        color: #fff;
+        color: #fff !important;
         font-size: clamp(1.5rem, 2.5vw, 2.2rem);
         font-weight: 800;
         margin-bottom: 0.75rem;
@@ -467,8 +475,8 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #fbbf24;
-        color: #1e1b2e;
+        background: var(--accent);
+        color: var(--dark);
         font-weight: 800;
         font-size: 0.9rem;
         padding: 12px 26px;
@@ -479,9 +487,9 @@
     }
 
     .btn-promo:hover {
-        background: #f59e0b;
+        background: var(--accent-bright);
         transform: translateY(-2px);
-        color: #1e1b2e;
+        color: var(--dark);
         text-decoration: none;
     }
 
@@ -554,7 +562,7 @@
     }
 
     .testi-stars {
-        color: #fbbf24;
+        color: var(--accent);
         font-size: 0.85rem;
         margin-bottom: 0.75rem;
         letter-spacing: 2px;
@@ -848,7 +856,7 @@
         <div class="promo-banner">
             <div class="row align-items-center g-4">
                 <div class="col-lg-6">
-                    <span style="color:#fbbf24;font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:0.5rem;position:relative;z-index:1;">Penawaran Spesial</span>
+                    <span style="color:#E6C077;font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:0.5rem;position:relative;z-index:1;">Penawaran Spesial</span>
                     <h2>Koleksi Sasirangan<br>Premium Hadir!</h2>
                     <p>Dapatkan motif eksklusif khas Kalimantan Selatan dengan desain modern yang elegan untuk berbagai kesempatan.</p>
                     <a href="{{ route('katalog.index') }}" class="btn-promo">

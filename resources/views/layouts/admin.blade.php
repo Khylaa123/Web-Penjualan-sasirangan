@@ -24,18 +24,14 @@
         </form>
         <ul class="navbar-nav navbar-right">
           <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-            <img alt="image" src="{{ asset('stisla/img/avatar/avatar-1.png') }}" class="rounded-circle mr-1">
-            <div class="d-sm-none d-lg-inline-block">Halo, {{ Auth::user()->name }}</div></a>
+            <div class="d-sm-none d-lg-inline-block">Hi, {{ Auth::user()->name ?? 'Admin' }}</div></a>
             <div class="dropdown-menu dropdown-menu-right">
-              <a href="{{ route('profile.edit') }}" class="dropdown-item has-icon">
-                <i class="far fa-user"></i> Profil
+              <a href="#" class="dropdown-item has-icon text-danger" 
+                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"></i> Logout
               </a>
-              <div class="dropdown-divider"></div>
-              <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="dropdown-item has-icon text-danger">
-                  <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+              <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                  @csrf
               </form>
             </div>
           </li>
@@ -45,38 +41,33 @@
       <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
           <div class="sidebar-brand">
-            <a href="{{ route('dashboard') }}">Mellisari Shop</a>
+            <a href="{{ url('/dashboard') }}">Mellisari Shop</a>
           </div>
           <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ route('dashboard') }}">MS</a>
+            <a href="{{ url('/dashboard') }}">MS</a>
           </div>
           <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
             <li class="{{ Request::is('dashboard*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('dashboard') }}"><i class="fas fa-fire"></i> <span>Dashboard</span></a>
+              <a class="nav-link" href="{{ url('/dashboard') }}"><i class="fas fa-fire"></i> <span>Dashboard</span></a>
             </li>
 
-            <li class="menu-header">Data Master</li>
+            <li class="menu-header">Manajemen Toko</li>
             <li class="{{ Request::is('kategori*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('kategori.index') }}"><i class="fas fa-list"></i> <span>Kategori Produk</span></a>
+              <a class="nav-link" href="{{ route('kategori.index') }}"><i class="fas fa-tags"></i> <span>Data Kategori</span></a>
             </li>
             <li class="{{ Request::is('produk*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('produk.index') }}"><i class="fas fa-tshirt"></i> <span>Produk Kain</span></a>
+              <a class="nav-link" href="{{ route('produk.index') }}"><i class="fas fa-box"></i> <span>Data Produk</span></a>
             </li>
-            <li class="{{ Request::is('riwayat-stok*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('riwayat-stok.index') }}"><i class="fas fa-boxes"></i> <span>Kelola Stok</span></a>
-            </li>
-            <li class="{{ Request::is('pengguna*') ? 'active' : '' }}">
-              <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i> <span>Manajemen Pengguna</span></a>
-            </li>
-<li class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
-    <a class="nav-link" href="{{ route('voucher.index') }}">
-        <i class="fas fa-ticket-alt"></i> <span>Manajemen Voucher</span>
-    </a>
-</li>
-            <li class="menu-header">Transaksi</li>
             <li class="{{ Request::is('pesanan*') ? 'active' : '' }}">
               <a class="nav-link" href="{{ route('pesanan.index') }}"><i class="fas fa-shopping-cart"></i> <span>Data Pesanan</span></a>
+            </li>
+            <li class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
+              <a class="nav-link" href="{{ route('admin.voucher.index') }}"><i class="fas fa-ticket-alt"></i> <span>Manajemen Voucher</span></a>
+            </li>
+            
+            <li class="{{ Request::is('pengguna*') ? 'active' : '' }}">
+              <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i> <span>Data Pengguna</span></a>
             </li>
 
             <li class="menu-header">Laporan</li>
@@ -112,7 +103,5 @@
   <script src="{{ asset('stisla/modules/nicescroll/jquery.nicescroll.min.js') }}"></script>
   <script src="{{ asset('stisla/js/stisla.js') }}"></script>
   <script src="{{ asset('stisla/js/scripts.js') }}"></script>
-  
-  @stack('scripts')
 </body>
 </html>

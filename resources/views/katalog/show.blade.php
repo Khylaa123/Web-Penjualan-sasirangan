@@ -5,32 +5,37 @@
 @section('content')
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800&family=Karla:wght@400;500;600;700&display=swap');
+
     :root {
-        --primary:   #7c3aed;
-        --primary-d: #6d28d9;
-        --primary-l: #ede9fe;
-        --accent:    #f59e0b;
-        --dark:      #1e1b2e;
-        --text:      #374151;
-        --text-soft: #6b7280;
-        --border:    #e5e7eb;
-        --bg-soft:   #fafafa;
+        --primary:      #A97524;
+        --primary-d:    #8C5D1B;
+        --primary-l:    #F5E8CC;
+        --accent:       #D9A441;
+        --accent-bright:#E6C077;
+        --dark:         #2B2118;
+        --text:         #4A3B2C;
+        --text-soft:    #8A7860;
+        --border:       #EADCC0;
+        --bg-soft:      #FBF3E3;
         --radius:    14px;
         --radius-sm: 8px;
-        --shadow:    0 2px 16px rgba(0,0,0,0.07);
-        --shadow-md: 0 4px 32px rgba(0,0,0,0.10);
+        --shadow:    0 2px 16px rgba(43,33,24,0.07);
+        --shadow-md: 0 4px 32px rgba(43,33,24,0.10);
     }
     * { box-sizing: border-box; }
-    body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
+    body { font-family: 'Karla', 'Inter', system-ui, sans-serif; color: var(--text); }
+
+    .page-header-custom h1, .prod-title, .section-heading { font-family: 'Fraunces', serif; }
 
     /* PAGE HEADER */
     .page-header-custom {
-        background: linear-gradient(135deg, #1e1b2e 0%, #2d1b6e 50%, #4c1d95 100%);
+        background: linear-gradient(135deg, #2B2118 0%, #4A3323 55%, #7A5220 100%);
         padding: 3rem 0 2rem; text-align: center;
     }
     .page-header-custom h1 {
         color: #fff; font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-        font-weight: 800; margin-bottom: 0.65rem; letter-spacing: -0.3px;
+        font-weight: 700; margin-bottom: 0.65rem; letter-spacing: -0.3px;
     }
     .breadcrumb-custom {
         display: flex; justify-content: center; align-items: center;
@@ -39,7 +44,7 @@
     .breadcrumb-custom li { color: rgba(255,255,255,0.55); }
     .breadcrumb-custom li a { color: rgba(255,255,255,0.75); text-decoration: none; transition: color 0.15s; }
     .breadcrumb-custom li a:hover { color: #fff; }
-    .breadcrumb-custom li.active { color: #fbbf24; font-weight: 600; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .breadcrumb-custom li.active { color: var(--accent-bright); font-weight: 600; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .breadcrumb-sep { color: rgba(255,255,255,0.3); }
 
     /* WRAP */
@@ -79,7 +84,7 @@
 
     .prod-title {
         font-size: clamp(1.3rem, 2vw, 1.65rem);
-        font-weight: 800; color: var(--dark);
+        font-weight: 700; color: var(--dark);
         line-height: 1.25; margin-bottom: 0.75rem;
         letter-spacing: -0.3px;
     }
@@ -88,7 +93,7 @@
         display: flex; align-items: center; gap: 8px;
         margin-bottom: 1rem; font-size: 0.85rem;
     }
-    .prod-stars { color: #f59e0b; letter-spacing: 1px; font-size: 0.9rem; }
+    .prod-stars { color: var(--accent); letter-spacing: 1px; font-size: 0.9rem; }
     .prod-rating-val { font-weight: 700; color: var(--dark); }
     .prod-rating-cnt { color: var(--text-soft); }
 
@@ -97,7 +102,7 @@
         font-size: 1.6rem; font-weight: 900; color: var(--dark);
         letter-spacing: -0.5px; margin-bottom: 0.4rem;
     }
-    .prod-price.disc { color: #ef4444; }
+    .prod-price.disc { color: #B3452C; }
 
     .stock-badge {
         display: inline-flex; align-items: center; gap: 5px;
@@ -128,7 +133,7 @@
     .qty-btn {
         width: 38px; height: 38px; border-radius: var(--radius-sm);
         background: var(--primary-l); color: var(--primary);
-        border: 1.5px solid #c4b5fd; font-size: 1.1rem;
+        border: 1.5px solid #E3C989; font-size: 1.1rem;
         font-weight: 700; cursor: pointer; display: flex;
         align-items: center; justify-content: center;
         transition: background 0.13s, border-color 0.13s;
@@ -145,7 +150,7 @@
         font-size: 0.88rem; font-weight: 600; color: var(--text-soft);
     }
     .qty-note {
-        font-size: 0.76rem; color: #ef4444;
+        font-size: 0.76rem; color: #B3452C;
         margin-bottom: 1.1rem; display: block;
     }
 
@@ -153,14 +158,14 @@
         display: flex; align-items: center; justify-content: center;
         gap: 9px; width: 100%; background: var(--primary); color: #fff;
         border: none; border-radius: var(--radius-sm);
-        padding: 13px 20px; font-size: 0.92rem; font-weight: 800;
+        padding: 13px 20px; font-size: 0.92rem; font-weight: 700;
         cursor: pointer; transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
-        box-shadow: 0 4px 14px rgba(124,58,237,0.28);
+        box-shadow: 0 4px 14px rgba(169,117,36,0.3);
         text-decoration: none;
     }
     .btn-add-cart:hover {
         background: var(--primary-d); transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(124,58,237,0.35); color: #fff;
+        box-shadow: 0 6px 20px rgba(169,117,36,0.4); color: #fff;
     }
 
     /* SIDEBAR */
@@ -223,7 +228,7 @@
 
     /* RELATED SECTION */
     .section-heading {
-        font-size: 1.3rem; font-weight: 800; color: var(--dark);
+        font-size: 1.3rem; font-weight: 700; color: var(--dark);
         letter-spacing: -0.3px; margin-bottom: 1.5rem;
         padding-bottom: 0.75rem; border-bottom: 2px solid var(--border);
         display: flex; align-items: center; gap: 10px;
@@ -254,7 +259,7 @@
     }
     .prod-rel-disc-tag {
         position: absolute; top: 10px; left: 10px;
-        background: #ef4444; color: #fff;
+        background: #B3452C; color: #fff;
         font-size: 0.68rem; font-weight: 700;
         padding: 3px 9px; border-radius: 99px;
     }
@@ -269,11 +274,11 @@
     .rel-name:hover { color: var(--primary); }
     .rel-price-orig { font-size: 0.74rem; color: #9ca3af; text-decoration: line-through; margin-bottom: 1px; }
     .rel-price { font-size: 0.97rem; font-weight: 800; color: var(--dark); margin-bottom: 0.75rem; flex: 1; }
-    .rel-price.disc { color: #ef4444; }
+    .rel-price.disc { color: #B3452C; }
     .btn-rel-buy {
         display: flex; align-items: center; justify-content: center;
         gap: 7px; background: var(--primary-l); color: var(--primary);
-        border: 1.5px solid #c4b5fd; border-radius: var(--radius-sm);
+        border: 1.5px solid #E3C989; border-radius: var(--radius-sm);
         padding: 8px 12px; font-size: 0.8rem; font-weight: 700;
         cursor: pointer; width: 100%; transition: all 0.15s;
         text-decoration: none;
@@ -337,7 +342,7 @@
 
             <h1 class="prod-title">{{ $produk->NAMA_PRODUK }}</h1>
 
-            <<h1 class="prod-title">{{ $produk->NAMA_PRODUK }}</h1>
+            <h1 class="prod-title">{{ $produk->NAMA_PRODUK }}</h1>
 
 @php
     // Menghitung rata-rata rating dari semua ulasan yang masuk ke produk ini
