@@ -252,30 +252,7 @@
 .carousel-control-prev {
     margin-left: 20px;
 }
-.page-header {
-    position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/katalog1.png);
 
-    background-position: center -80px;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    size: 100px;
-}
-
-@media (min-width: 992px) {
-    .hero-header,
-    .page-header {
-        margin-top: 152px !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .hero-header,
-    .page-header {
-        margin-top: 97px !important;
-    }
-}
 /*** Hero Header end ***/
 /*** featurs Start ***/
 .featurs .featurs-item .featurs-icon {
@@ -296,8 +273,6 @@
     background: var(--bs-secondary);
     
 }
-/*** featurs End ***/
-
 
 /*** service Start ***/
 .service .service-item .service-content {
@@ -1494,4 +1469,56 @@
 .btn-outline-warning:hover {
     background: #ffb524;
     color: #fff;
+}
+
+/* ===== FIX HEADER KATALOG ===== */
+.page-header-custom {
+    padding-top: 40px;
+    padding-bottom: 30px;
+}
+
+.page-header-custom h1 {
+    color: #ffffff !important;
+    position: relative;
+    z-index: 2;
+}
+
+.page-header-custom .breadcrumb-custom li,
+.page-header-custom .breadcrumb-custom a {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* ===== FIX GAMBAR PRODUK KATALOG BARU ===== */
+.prod-img-wrap {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+    background: #f8f3e8;
+    position: relative;
+}
+
+.prod-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.prod-card:hover .prod-img-wrap img {
+    transform: scale(1.05);
+}
+
+:root {
+    --navbar-height: 100px;
+}
+
+.page-header-custom {
+    margin-top: var(--navbar-height);
+    padding-top: 20px;
+    padding-bottom: 25px;
+}
+
+body {
+    padding-top: var(--navbar-height);
 }

@@ -8,7 +8,6 @@ use App\Models\Kategori;
 
 class InventoryController extends Controller
 {
-<<<<<<< HEAD
     public function index(Request $request)
     {
         // =========================
@@ -69,28 +68,10 @@ class InventoryController extends Controller
     // DELETE INVENTORY
     // =========================
     public function destroy($id)
-=======
-    public function index()
-    {
-        // Mengambil produk aktif untuk Dropdown Input
-        $produk = Produk::where('STATUS_AKTIF', 1)->get(); 
-        
-        // Mengambil histori barang masuk/keluar
-        $riwayat = RiwayatStok::with(['produk', 'user'])->orderBy('TANGGAL', 'desc')->get();
-        
-        return view('admin.inventory.index', compact('produk', 'riwayat'));
-    }
-
-    public function store(Request $request)
->>>>>>> 8ea2df5af7b9939347e9f9b7c1211e01aa3913c3
     {
         $produk = Produk::findOrFail($id);
         $produk->delete();
 
-<<<<<<< HEAD
-        return redirect()->route('inventory.index')
-            ->with('success', 'Produk berhasil dihapus dari inventory');
-=======
         RiwayatStok::create([
             'ID_PRODUK' => $request->ID_PRODUK,
             'ID_USER' => Auth::id(),
@@ -102,6 +83,5 @@ class InventoryController extends Controller
 
         // Stok utama di tabel produk akan terupdate otomatis karena kamu punya Trigger MySQL
         return redirect()->back()->with('success', 'Data Inventory berhasil dicatat. Stok telah diperbarui.');
->>>>>>> 8ea2df5af7b9939347e9f9b7c1211e01aa3913c3
     }
 }

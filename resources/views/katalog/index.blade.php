@@ -343,7 +343,7 @@
                 <div class="col-sm-6 col-xl-4">
                     <div class="prod-card">
                         <div class="prod-img-wrap">
-                            <img src="{{ asset('storage/' . ($p->FOTO_PRODUK ?? $p->GAMBAR_UTAMA)) }}" alt="{{ $p->NAMA_PRODUK }}">
+                            <img src="{{ asset('storage/' . ($p->FOTO_PRODUK ?: $p->GAMBAR_UTAMA)) }}" alt="{{ $p->NAMA_PRODUK }}">
                             <span class="prod-cat-tag">{{ $p->kategori->NAMA_KATEGORI ?? 'Umum' }}</span>
                             @if($p->DISKON_PERSEN > 0)
                             <span class="prod-disc-tag">−{{ $p->DISKON_PERSEN }}%</span>
