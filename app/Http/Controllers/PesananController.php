@@ -31,17 +31,16 @@ class PesananController extends Controller
     }
 
     // 2. Menampilkan Detail Pesanan (Invoice/Struk)
-    public function show($id)
+   public function show($id)
     {
-        // Ambil data pesanan beserta relasi user, detail barang, dan kurir pengiriman
-        $pesanan = Pesanan::with(['user', 'detail.produk', 'pengiriman'])->findOrFail($id);
+        // Memuat pesanan utuh dari database
+        $pesanan = Pesanan::with(['user', 'detail.produk'])->findOrFail($id);
 
-        // Keamanan tambahan: Cegah pembeli mengintip pesanan orang lain lewat URL
         if (Auth::user()->role == 'Pembeli' && $pesanan->ID_USER != Auth::id()) {
-            abort(403, 'Akses Ditolak! Ini bukan pesanan Anda.');
+            abort(403);
         }
 
-        return view('pesanan.show', compact('pesanan'));
+        return view('pesanan.detail_pesanan', compact('pesanan'));
     }
 
     // 3. Update Status Pesanan - Memproses status dari Admin/Pegawai dan Pembeli
@@ -98,21 +97,16 @@ class PesananController extends Controller
         return redirect()->back()->with('error', 'Status pesanan tidak valid.');
     }
 
-    // 4. Cetak Struk/Invoice (Download PDF)
     public function cetakInvoice($id)
     {
-        // Ambil data pesanan
-        $pesanan = Pesanan::with(['user', 'detail.produk'])->findOrFail($id);
+        // Memuat data pesanan utuh untuk di-convert ke PDF
+        $pesanan = Pesanan::with(['user', 'detail.produk'])->where('ID_PESANAN', $id)->firstOrFail();
 
-        // Pastikan pembeli hanya bisa cetak pesanannya sendiri
         if (Auth::user()->role == 'Pembeli' && $pesanan->ID_USER != Auth::id()) {
-            abort(403, 'Akses Ditolak! Anda tidak bisa mencetak pesanan orang lain.');
+            abort(403);
         }
 
-        // Load view HTML dan ubah jadi PDF
         $pdf = Pdf::loadView('pesanan.invoice', compact('pesanan'));
-        
-        // Return download langsung ke perangkat pembeli
-        return $pdf->download('Invoice-Sasirangan-' . $pesanan->ID_PESANAN . '.pdf');
+        return $pdf->stream('invoice-' . $pesanan->ID_PESANAN . '.pdf');
     }
 }

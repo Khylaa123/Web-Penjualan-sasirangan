@@ -16,8 +16,6 @@ use App\Http\Controllers\UlasanController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\KatalogController;
 use Illuminate\Support\Facades\Route;
-use Midtrans\Config;
-use Midtrans\Snap;
 
 // Route Public
 Route::get('/', [FrontController::class, 'index'])->name('home');
@@ -31,7 +29,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('voucher', VoucherController::class);
 });
 
-// Route Checkout
+// Route Checkout & Profil (Semua User Login)
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/proses', [CheckoutController::class, 'proses'])->name('checkout.proses');
@@ -40,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.index');
 });
 
+// Area Khusus Admin & Pegawai
 Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -48,41 +47,42 @@ Route::middleware(['auth', 'verified', 'role:Admin,Pegawai'])->group(function ()
     Route::get('/profil-pelanggan', function () { return view('front.profile'); })->name('profil-pelanggan');
 
     // Dashboard & Master Data
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('role:Admin,Pegawai');
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('role:Admin,Pegawai');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('kategori', KategoriController::class)->except(['destroy']);
     Route::resource('produk', ProdukController::class)->except(['destroy']);
     Route::resource('riwayat-stok', RiwayatStokController::class)->except(['edit', 'update', 'destroy', 'show']);
 
-    // Pesanan
+    // Pesanan & Laporan
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
     Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
     Route::post('/pesanan/{id}/update', [PesananController::class, 'updateStatus'])->name('pesanan.update');
-
-    // Laporan, Ulasan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
-    Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
-
-    // Area khusus Admin
-    Route::middleware(['auth', 'role:Admin'])->group(function () {
+    
+    // Area Spesifik Admin Saja
+    Route::middleware(['role:Admin'])->group(function () {
         Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
-
         Route::get('/pengguna', [UserController::class, 'index'])->name('users.index');
         Route::post('/pengguna', [UserController::class, 'store'])->name('users.store');
         Route::put('/pengguna/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/pengguna/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-        Route::resource('voucher', VoucherController::class);
     });
 });
 
+// Area Khusus Pembeli (Pelanggan)
 Route::middleware(['auth', 'role:Pembeli'])->group(function () {
-    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index')->middleware('role:Pembeli');
+    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
     Route::delete('/keranjang/remove/{id}', [KeranjangController::class, 'remove'])->name('keranjang.remove');
+    
     Route::get('/riwayat-pesanan', [FrontController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/riwayat-pesanan/{id}', [FrontController::class, 'detailPesanan'])->name('riwayat.detail');
+    Route::get('/pesanan/{id}/invoice', [PesananController::class, 'cetakInvoice'])->name('pesanan.invoice');
+    
+    // PERBAIKAN: Route Ulasan dipindah ke sini agar Pembeli memiliki hak akses (TIDAK 403 LAGI)
+    Route::post('/ulasan/simpan', [UlasanController::class, 'store'])->name('ulasan.store');
 });
 
 require __DIR__.'/auth.php';

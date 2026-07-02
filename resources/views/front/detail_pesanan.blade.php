@@ -32,14 +32,22 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($pesanan->detail as $d)
+                                    @foreach ($pesanan->detail as $det)
                                     <tr>
                                         <td>
-                                            <span class="fw-bold text-dark">{{ $d->produk->NAMA_PRODUK ?? 'Produk Dihapus' }}</span>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ asset('storage/' . ($det->produk->GAMBAR_UTAMA ?? 'default.jpg')) }}" 
+                                                     class="img-fluid rounded me-3" 
+                                                     style="width: 60px; height: 60px; object-fit: cover;" 
+                                                     alt="{{ $det->produk->NAMA_PRODUK ?? 'Produk' }}">
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">{{ $det->produk->NAMA_PRODUK ?? 'Produk Tidak Diketahui' }}</h6>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>Rp {{ number_format($d->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
-                                        <td class="text-center">{{ $d->JUMLAH_BELI }} Meter</td>
-                                        <td class="text-end fw-bold">Rp {{ number_format($d->SUBTOTAL, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($det->HARGA_SAAT_BELI, 0, ',', '.') }}</td>
+                                        <td class="text-center">{{ $det->JUMLAH_BELI }}</td>
+                                        <td class="text-end fw-bold text-dark">Rp {{ number_format($det->SUBTOTAL, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -47,19 +55,41 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 text-dark fw-bold">Informasi Pengiriman</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <span class="text-muted d-block small">Nama Penerima</span>
+                                <span class="fw-bold text-dark">{{ $pesanan->user->name ?? '-' }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="text-muted d-block small">No. WhatsApp</span>
+                                <span class="fw-bold text-dark">{{ $pesanan->user->no_whatsapp ?? '-' }}</span>
+                            </div>
+                            <div class="col-12">
+                                <span class="text-muted d-block small">Alamat Lengkap</span>
+                                <span class="text-dark">{{ $pesanan->user->alamat_lengkap ?? '-' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm border-0 position-sticky" style="top: 20px;">
                     <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 text-dark fw-bold">Ringkasan Transaksi</h5>
+                        <h5 class="mb-0 text-dark fw-bold">Ringkasan Total</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3 d-flex justify-content-between">
-                            <span class="text-muted">Status:</span>
-                            <span class="fw-bold text-primary">{{ $pesanan->STATUS_PESANAN }}</span>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span class="text-muted">Status Pesanan:</span>
+                            <span class="badge bg-info text-white">{{ $pesanan->STATUS_PESANAN }}</span>
                         </div>
-                        <div class="mb-3 d-flex justify-content-between">
+                        <div class="mb-2 d-flex justify-content-between">
                             <span class="text-muted">No. Resi Pengiriman:</span>
                             <span class="fw-bold text-dark">{{ $pesanan->RESI_PENGIRIMAN ?? '-' }}</span>
                         </div>
@@ -76,7 +106,11 @@
                             <h5 class="mb-0 fw-bold text-dark">Total Akhir:</h5>
                             <h4 class="mb-0 fw-bold text-primary">Rp {{ number_format($pesanan->TOTAL_AKHIR, 0, ',', '.') }}</h4>
                         </div>
+                        
                         <div class="mt-4">
+                            <a href="{{ route('pesanan.invoice', $pesanan->ID_PESANAN) }}" target="_blank" class="btn btn-primary text-white rounded-pill w-100 mb-2">
+                                <i class="fa fa-print me-2"></i> Cetak Invoice (PDF)
+                            </a>
                             <a href="{{ route('riwayat.pesanan') }}" class="btn btn-outline-secondary rounded-pill w-100">Kembali ke Riwayat</a>
                         </div>
                     </div>

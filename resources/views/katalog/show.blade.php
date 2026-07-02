@@ -337,11 +337,29 @@
 
             <h1 class="prod-title">{{ $produk->NAMA_PRODUK }}</h1>
 
-            <div class="prod-rating-row">
-                <span class="prod-stars">★★★★★</span>
-                <span class="prod-rating-val">5.0</span>
-                <span class="prod-rating-cnt">· Sasirangan Asli</span>
-            </div>
+            <<h1 class="prod-title">{{ $produk->NAMA_PRODUK }}</h1>
+
+@php
+    // Menghitung rata-rata rating dari semua ulasan yang masuk ke produk ini
+    $rataRataRating = $produk->ulasan->avg('RATING') ?? 0; 
+    $bintangPenuh = floor($rataRataRating);
+    $setengahBintang = ($rataRataRating - $bintangPenuh) >= 0.5;
+@endphp
+
+<div class="prod-rating-row">
+    <span class="prod-stars" style="color: var(--accent);">
+        @for($i = 1; $i <= 5; $i++)
+            @if($i <= $bintangPenuh)
+                ★
+            @elseif($i == $bintangPenuh + 1 && $setengahBintang)
+                ½ @else
+                ☆
+            @endif
+        @endfor
+    </span>
+    <span class="prod-rating-val">{{ number_format($rataRataRating, 1) }}</span>
+    <span class="prod-rating-cnt">· ({{ $produk->ulasan->count() }} Ulasan) · Sasirangan Asli</span>
+</div>
 
             @if(isset($produk->DISKON_PERSEN) && $produk->DISKON_PERSEN > 0)
             <div class="prod-price-orig">Rp {{ number_format($produk->HARGA, 0, ',', '.') }}</div>
