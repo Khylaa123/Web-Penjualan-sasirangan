@@ -72,7 +72,7 @@
 
                         @auth
                             <a href="{{ route('riwayat.pesanan') }}" class="nav-item nav-link px-2">Riwayat Pesanan</a>
-                            <a href="{{ route('profil.index') }}" class="nav-item nav-link px-2">
+                            <a href="{{ route('profile.edit') }}">Profil Saya</a>
                                 Profil ({{ Auth::user()->name }})
                             </a>
 
